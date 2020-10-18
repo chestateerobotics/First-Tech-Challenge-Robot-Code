@@ -21,11 +21,15 @@ public class WobbleGoalArm extends LinearOpMode{
             }
             else if (gamepad1.x){
                 double position = armServo.getPosition();
+
                 if (position == 1.0){
                     armServo.setPosition(0);
+                    sleep(250);
+
                 }
                 else {
                     armServo.setPosition(1.0);
+                    sleep(250);
                 }
             }
 
