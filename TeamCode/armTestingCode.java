@@ -21,11 +21,9 @@ public class WobbleGoalArm extends LinearOpMode{
             }
             else if (gamepad1.x){
                 double position = armServo.getPosition();
-
                 if (position == 1.0){
                     armServo.setPosition(0);
                     sleep(250);
-
                 }
                 else {
                     armServo.setPosition(1.0);
@@ -45,6 +43,7 @@ public class WobbleGoalArm extends LinearOpMode{
             telemetry.addData("Max speed", "%.1f", maxSpeed);
             telemetry.addData("Arm Power", "%.1f", arm.getPower());
             telemetry.addData("Servo Position","%.1f",armServo.getPosition());
+            telemetry.update();
         }
     }
 }
