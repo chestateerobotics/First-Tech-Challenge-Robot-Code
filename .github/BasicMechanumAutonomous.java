@@ -16,19 +16,18 @@ public class BasicMechanumAutonomous extends OpMode {
     private ColorSensor colorSensor;
 
     // Game variables
-    private String alliance = "blue";
     private boolean isFinished = false;
 
     public void init() {
-        m1 = hardwareMap.dcMotor.get("back_left_motor");
-        m2 = hardwareMap.dcMotor.get("front_left_motor");
-        m3 = hardwareMap.dcMotor.get("front_right_motor");
-        m4 = hardwareMap.dcMotor.get("back_right_motor");
+        m1 = hardwareMap.dcMotor.get("backLeft");
+        m2 = hardwareMap.dcMotor.get("frontLeft");
+        m3 = hardwareMap.dcMotor.get("frontRight");
+        m4 = hardwareMap.dcMotor.get("backRight");
         m1.setDirection(DcMotor.Direction.REVERSE);
         m2.setDirection(DcMotor.Direction.REVERSE);
         mecanumDrive.init(hardwareMap);
 
-        colorSensor = hardwareMap.colorSensor.get("color_sensor");
+        colorSensor = hardwareMap.colorSensor.get("colorSensor");
         telemetry.addData("Press Start When Ready", "");
         telemetry.update();
 
@@ -42,7 +41,7 @@ public class BasicMechanumAutonomous extends OpMode {
                 telemetry.addData("G: ", colorSensor.green());
                 telemetry.addData("B: ", colorSensor.blue());
                 telemetry.update();
-                driveForward(.5);
+                //driveForward(.5);
             }
             fullStop();
             isFinished = true;
