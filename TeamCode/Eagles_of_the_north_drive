@@ -50,7 +50,7 @@ public class hunterTesting extends LinearOpMode {
             telemetry.addData("Left Stick Y", "%.1f", -gamepad1.left_stick_y);
             telemetry.addData("Right Stick X", "%.1f", gamepad1.right_stick_x);
             telemetry.addData("Encoders"," %d %d %d %d", front.getCurrentPosition(), right.getCurrentPosition(),
-                    left.getCurrentPosition(), back.getCurrentPosition());
+                left.getCurrentPosition(), back.getCurrentPosition());
             telemetry.update();
         }
         front.setPower(0);
