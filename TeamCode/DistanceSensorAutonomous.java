@@ -9,6 +9,16 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+/*
+Stuff to test before running on the actual robot:
+    1: Color Sensor Values for the white line
+    2: Distance sensor values for each of the squares
+    3: Change all movement to slower
+    (I recomend 0.25 for regular and 0.05 for testing for white line)
+    4:
+*/
+
+
 @TeleOp(name = "Distance Sensor Autonomous")
 public class DistanceSensorAutonomous extends LinearOpMode{
     private MecanumDrive mecanumDrive = new MecanumDrive();
@@ -97,6 +107,9 @@ public class DistanceSensorAutonomous extends LinearOpMode{
                 //Position 0 is Retract
                 handServo.setPosition(0);
                 sleep(100);
+                driveLeft(1);
+                sleep(100);
+                returnArm();
 
                 //Find actual color sensor values
                 while (colorSensor.blue() < 300 &&
@@ -104,6 +117,7 @@ public class DistanceSensorAutonomous extends LinearOpMode{
                         colorSensor.red() < 300) {
                     driveBackwards(.1);
                 }
+
                 fullStop();
                 telemetry.addData("finished", "");
                 telemetry.update();
@@ -124,6 +138,7 @@ public class DistanceSensorAutonomous extends LinearOpMode{
 
         colorSensor = hardwareMap.get(ColorSensor.class, "color_sensor");
     }
+
     private void driveForward(double speed) {
         telemetry.addData("driving forward", "");
         telemetry.update();
