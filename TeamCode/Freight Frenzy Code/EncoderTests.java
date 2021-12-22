@@ -23,21 +23,6 @@ public class EncoderTests extends LinearOpMode {
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
 
-        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        frontLeft.setTargetPosition(0);
-        frontRight.setTargetPosition(0);
-        backLeft.setTargetPosition(0);
-        backRight.setTargetPosition(0);
-
-        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
         backLeft.setDirection(DcMotor.Direction.REVERSE);
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
 
@@ -48,7 +33,7 @@ public class EncoderTests extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            /*
+            
             if(gamepad1.dpad_up){
                 frontLeft.setPower(0.5);
             }
@@ -68,29 +53,11 @@ public class EncoderTests extends LinearOpMode {
                 backRight.setPower(0);
             }
 
-
-            moveForward(660.4);
-            sleep(2000);
-            moveSide(660.4);
-            sleep(2000);
-            moveAngle(500, 45);
-            sleep(2000);
-            */
-            //telemetry.addData("Arc Length ", calculateArcLength(180));
-            //telemetry.update();
-            //sleep(1000);
-            moveForward(660.4);
-            sleep(200);
-            doTurn(90);
-            sleep(200);
-            moveForward(660.4);
-            sleep(500);
             telemetry.addData("Front Left", frontLeft.getCurrentPosition());
             telemetry.addData("Front Right", frontRight.getCurrentPosition());
             telemetry.addData("Back Left", backLeft.getCurrentPosition());
             telemetry.addData("Back Right", backRight.getCurrentPosition());
             telemetry.update();
-            break;
         }
     }
     private void setSpeeds(double flSpeed, double frSpeed, double blSpeed, double brSpeed) {
@@ -164,10 +131,10 @@ public class EncoderTests extends LinearOpMode {
     private void moveSide(double distance){
         int num = (int)calculateEncoders(distance);
 
-        frontLeft.setTargetPosition(-frontLeft.getCurrentPosition() + num);
+        frontLeft.setTargetPosition(frontLeft.getCurrentPosition() - num);
         frontRight.setTargetPosition(frontRight.getCurrentPosition() + num);
         backLeft.setTargetPosition(backLeft.getCurrentPosition() + num);
-        backRight.setTargetPosition(-backRight.getCurrentPosition() + num);
+        backRight.setTargetPosition(backRight.getCurrentPosition() - num);
 
         frontLeft.setPower(0.2);
         frontRight.setPower(0.2);
@@ -239,7 +206,7 @@ public class EncoderTests extends LinearOpMode {
     }
 
     private void move45Right(double distance){
-        int num = (int)calculateEncoders(distance);
+        int num = (int)calculateEncoders(distance * (4.0/3.0));
         frontLeft.setTargetPosition(frontLeft.getCurrentPosition() + num);
         frontRight.setTargetPosition(0);
         backLeft.setTargetPosition(0);
@@ -252,7 +219,7 @@ public class EncoderTests extends LinearOpMode {
         backLeft.setPower(0.2);
         backRight.setPower(0.2);
 
-        while (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()){
+        while(frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()){
             telemetry.addData("Encoder Front Left", frontLeft.getCurrentPosition());
             telemetry.addData("Front Left Power", frontLeft.getPower());
             telemetry.update();
@@ -265,7 +232,7 @@ public class EncoderTests extends LinearOpMode {
         sleep(100);
     }
     private void move45Left(double distance){
-        int num = (int)calculateEncoders(distance);
+        int num = (int)calculateEncoders(distance * (4/3.0));
         frontLeft.setTargetPosition(0);
         frontRight.setTargetPosition(frontRight.getCurrentPosition() + num);
         backLeft.setTargetPosition(backLeft.getCurrentPosition() + num);
@@ -277,7 +244,7 @@ public class EncoderTests extends LinearOpMode {
         backLeft.setPower(0.2);
         backRight.setPower(0.2);
 
-        while (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()){
+        while (frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()){
             telemetry.addData("Encoder Front Left", frontLeft.getCurrentPosition());
             telemetry.addData("Front Left Power", frontLeft.getPower());
             telemetry.update();
@@ -289,4 +256,54 @@ public class EncoderTests extends LinearOpMode {
         backRight.setPower(0);
         sleep(100);
     }
+    
+    private void moveAngle(double distance, double angle)
+    {
+        double offset = -45; // Offset for angle to easily plug it into trig functions
+        double actualAngle = angle + offset;
+        double radAngle = Math.toRadians(actualAngle); // Convert into radians
+        
+        double multiplierA = Math.sin(radAngle); // Front Left and Rear Right multipler
+        double multiplierB = Math.cos(radAngle); // Front Right and Rear Left multiplier
+        
+        double power_frontLeft = multiplierB;
+        double power_frontRight = multiplierA;
+        double power_rearLeft = multiplierA;
+        double power_rearRight = multiplierB;
+        
+        int pos_frontLeft = (int)Math.round((frontLeft.getCurrentPosition() + multiplierA * distance));
+        int pos_frontRight = (int)Math.round((frontRight.getCurrentPosition() + multiplierB * distance));
+        int pos_rearLeft = (int)Math.round((backLeft.getCurrentPosition() + multiplierB * distance));
+        int pos_rearRight = (int)Math.round((backRight.getCurrentPosition() + multiplierA * distance));
+        
+        frontLeft.setTargetPosition(pos_frontLeft);
+        frontRight.setTargetPosition(pos_frontRight);
+        backLeft.setTargetPosition(pos_rearLeft);
+        backRight.setTargetPosition(pos_rearRight);
+    
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        
+        frontLeft.setPower(power_frontLeft);
+        frontRight.setPower(power_frontRight);
+        backLeft.setPower(power_rearLeft);
+        backRight.setPower(power_rearRight);
+        
+        while (frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()){
+            telemetry.addData("Encoder Front Left", frontLeft.getCurrentPosition());
+            telemetry.addData("Front Left Power", frontLeft.getPower());
+            telemetry.addData("Rise", multiplierA*distance);
+            telemetry.addData("Run", multiplierB*distance);
+            telemetry.update();
+        }
+        
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+        sleep(100);
+    }
+
 }

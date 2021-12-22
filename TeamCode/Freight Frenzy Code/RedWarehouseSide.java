@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import java.util.List;
 
 @Autonomous
-public class BlueCarouselSide extends LinearOpMode {
+public class RedWarehouseSide extends LinearOpMode {
     private DcMotor frontLeft;
     private DcMotor frontRight;
     private DcMotor backLeft;
@@ -133,47 +133,37 @@ public class BlueCarouselSide extends LinearOpMode {
 
             //Go to carousel regardless of what is detected
             if((midPos < 500) && foundCup){
-                //Go to middle
-                telemetry.addData("Going to Middle", "");
-                level = 2;
-                allianceHubDistance = 485;
+                //Go to lower
+                telemetry.addData("Going to Lower", "");
+                level = 1;
+                allianceHubDistance = 650;
             }
             else if ((midPos >= 500) && foundCup){
                 //Go to top
-                telemetry.addData("Going to top", "");
-                level = 3;
-                allianceHubDistance = 565;
+                telemetry.addData("Going to Middle", "");
+                level = 2;
+                allianceHubDistance = 700;
             }
             else{
-                allianceHubDistance = 340;
-                level = 1;
+                allianceHubDistance = 750;
+                level = 3;
             }
             telemetry.addData("Mid Position", midPos);
             telemetry.update();
             moveArm(0.4);
             sleep(400);
             moveArm(0.1);
-            //Go to carousel, turn 45 degrees, and turn motor
-            move45Right(420);
-            doTurn(-45);
-            moveForward(-240);
-            //Turn carousel motor
-            carousel.setPower(0.5);
-            encoderArm(level, 3);
+            encoderArm(level, 1);
             encoderArm(level,1);
-            carousel.setPower(0);
-            moveForward(200);
-            doTurn(45);
-            moveSide(-950);
+            moveSide(-526);
             moveForward(allianceHubDistance);
             intake.setPower(-0.3);
             sleep(2000);
             intake.setPower(0);
             moveForward(-allianceHubDistance);
-            moveSide(700);
-            move45Right(750);
-            moveForward(50);
-
+            
+            moveSide(1300);
+            moveForward(700);
             telemetry.addData("Front Left", frontLeft.getCurrentPosition());
             telemetry.addData("Front Right", frontRight.getCurrentPosition());
             telemetry.addData("Back Left", backLeft.getCurrentPosition());
@@ -353,8 +343,8 @@ public class BlueCarouselSide extends LinearOpMode {
             arm_right.setTargetPosition(350);
         }
         else if(level == 2){
-            arm_left.setTargetPosition(700);
-            arm_right.setTargetPosition(700);
+            arm_left.setTargetPosition(745);
+            arm_right.setTargetPosition(745);
         }
         else{
             arm_left.setTargetPosition(1060);
