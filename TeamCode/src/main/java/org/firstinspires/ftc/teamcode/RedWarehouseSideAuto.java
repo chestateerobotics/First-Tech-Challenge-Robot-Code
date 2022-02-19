@@ -1,8 +1,10 @@
-package org.firstinspires.ftc.teamcode.drive.opmode;
+package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,11 +21,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 import java.util.List;
 import java.util.Queue;
-
+@Autonomous
 public class RedWarehouseSideAuto extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "GreenCup.tflite";
     private static final String[] LABELS = {
@@ -60,13 +63,17 @@ public class RedWarehouseSideAuto extends LinearOpMode {
     private DigitalChannel green;
 
     private double armSpeed = .3;
+    private int i = 0;
+
 
     private ElapsedTime armRuntime = new ElapsedTime();
     private ElapsedTime robotRuntime = new ElapsedTime();
-    SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-    Pose2d startPose = new Pose2d(0, 0, 0);
+
     Queue<Trajectory> trajectoryQueue;
     public void runOpMode(){
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        Pose2d startPose = new Pose2d(0, 0, Math.toRadians(90));
+        Pose2d currentPose = new Pose2d();
         drive.setPoseEstimate(startPose);
 
         arm_right = hardwareMap.get(DcMotor.class, "arm_right");
@@ -90,28 +97,35 @@ public class RedWarehouseSideAuto extends LinearOpMode {
         //Line up with the alliance hub and close to the y position
         //Moves arm while moving
         Trajectory hubLineUp = drive.trajectoryBuilder(startPose)
-                .strafeTo(new Vector2d(-16.3125, 27.1875))
+                .strafeTo(new Vector2d(-20.5, 15),
+                        SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .addTemporalMarker(0, () -> {
                     // Turn on motor
-                    encoderArm(level, 0.5);
+                    if(i == 0) {
+                        encoderArm(level, 0.5);
+                    }
+                    else{
+                        encoderArm(3, 0.5);
+                    }
                 })
-                .addTemporalMarker(1.5, () -> {
+                .addTemporalMarker(2.5, () -> {
                     // Run action at 1.5 seconds  after the previous marker
 
                     // Turn off motor
-                    encoderArm(level, 0);
+                    encoderArm(level, 0.0);
                 })
                 .build();
-
+/*
         //Finish Line Up
         Trajectory finishLineUp = drive.trajectoryBuilder(new Pose2d())
                 .forward(allianceHubDistance)
                 .build();
-
+*/
         //Go to start Position so we can go to warehouse
         //Make sure arm is high enough to not hit the wall
         Trajectory origin = drive.trajectoryBuilder(startPose)
-                .strafeTo(new Vector2d(0, 0.1))
+                .lineToLinearHeading(new Pose2d(-5, 0, Math.toRadians(90)))
                 .addTemporalMarker(0, () -> {
                     // Turn on motor
                     encoderArm(2, 0.5);
@@ -122,6 +136,7 @@ public class RedWarehouseSideAuto extends LinearOpMode {
                     // Turn off motor
                     encoderArm(2, 0);
                 })
+
                 .build();
 
         //Go into warehouse
@@ -129,20 +144,15 @@ public class RedWarehouseSideAuto extends LinearOpMode {
                 .strafeTo(new Vector2d(32.625, 0))
                 .build();
 
-
+/*
         //Grab block parallel
         Trajectory parallel = drive.trajectoryBuilder(new Pose2d())
                 .lineToLinearHeading(new Pose2d(0, 17, Math.toRadians(0)))
                 .build();
+*/
 
-        //Grab block perpendicular
-        Trajectory perpendicular = drive.trajectoryBuilder(new Pose2d())
-                .lineToLinearHeading(new Pose2d(10.85, 32.625, Math.toRadians(-45)))
-                .build();
 
-        Trajectory moveBack = drive.trajectoryBuilder(new Pose2d())
-                .lineToLinearHeading(new Pose2d(-10, -10, Math.toRadians(90)))
-                .build();
+
 
 
 
@@ -181,17 +191,17 @@ public class RedWarehouseSideAuto extends LinearOpMode {
                 //Go to lower
                 telemetry.addData("Going to Lower", "");
                 level = 1;
-                allianceHubDistance = 0.25;
+                allianceHubDistance = 4;
             }
             else if ((midPos >= 500 && midPos < 800) && foundCup){
                 //Go to top
                 telemetry.addData("Going to Middle", "");
                 level = 2;
-                allianceHubDistance = 0.4;
+                allianceHubDistance = 5.5;
             }
             else{
                 telemetry.addData("Going to Top", "");
-                allianceHubDistance = 0.5;
+                allianceHubDistance = 10.5;
                 level = 3;
             }
 
@@ -207,40 +217,71 @@ public class RedWarehouseSideAuto extends LinearOpMode {
                 Measurements to note:
                     One floor tile: 21.75 in
              */
-            encoderArm(1,1);
-            trajectoryQueue.add(hubLineUp);
-            trajectoryQueue.add(finishLineUp);
-            while(!trajectoryQueue.isEmpty()) {
-                drive.followTrajectory(trajectoryQueue.poll());
-            }
+            encoderArm(1,0.5);
+            sleep(300);
+            encoderArm(1,0.0);
+            drive.followTrajectory(hubLineUp);
+
+            currentPose = drive.getPoseEstimate();
+
+            //Finish Line Up
+            Trajectory finishLineUp = drive.trajectoryBuilder(currentPose)
+                    .forward(allianceHubDistance)
+                    .build();
+            sleep(20);
+            drive.followTrajectory(finishLineUp);
             dropBlock();
-            trajectoryQueue.add(origin);
-            trajectoryQueue.add(insideWarehouse);
-            trajectoryQueue.add(perpendicular);
-            //trajectoryQueue.add(parallel);
-            while(!trajectoryQueue.isEmpty()) {
-                drive.followTrajectory(trajectoryQueue.poll());
+            drive.followTrajectory(origin);
+            drive.followTrajectory(insideWarehouse);
+            //Grab block perpendicular
+            currentPose = drive.getPoseEstimate();
+            Trajectory perpendicular = drive.trajectoryBuilder(currentPose)
+                    .lineToLinearHeading(new Pose2d(31.5, 19.5, Math.toRadians(-45)))
+                    .addTemporalMarker(0, () -> {
+                        // Turn on motor
+                        encoderArm(0, 0.2);
+                    })
+                    .addTemporalMarker(1.5, () -> {
+                        // Run action at 1.5 seconds  after the previous marker
+
+                        // Turn off motor
+                        encoderArm(0, 0.0);
+                    })
+                    .build();
+            drive.followTrajectory(perpendicular);
+
+            drive.setMotorPowers(0.5,0.5,0.5,0.5);
+            armRuntime.reset();
+            while(colorsensor.red() < 200 && armRuntime.seconds() < 5){
+                intake.setPower(0.8);
             }
-            grabBlock(0.2);
-            trajectoryQueue.add(moveBack);
-            trajectoryQueue.add(insideWarehouse);
-            while(!trajectoryQueue.isEmpty()) {
-                drive.followTrajectory(trajectoryQueue.poll());
-            }
-            if(robotRuntime.seconds() > 22){
+            intake.setPower(0);
+            drive.setMotorPowers(0,0,0,0);
+
+            currentPose = drive.getPoseEstimate();
+            Trajectory moveBack = drive.trajectoryBuilder(currentPose)
+                    .back(2)
+                    .build();
+
+            drive.followTrajectory(moveBack);
+            intake.setPower(0.4);
+            sleep(400);
+            intake.setPower(0);
+            currentPose = drive.getPoseEstimate();
+            Trajectory warehouse = drive.trajectoryBuilder(currentPose)
+                    .lineToLinearHeading(new Pose2d(32.625, 0, Math.toRadians(90)))
+                    .build();
+            drive.followTrajectory(warehouse);
+
+            if(robotRuntime.seconds() > 24){
                 break;
             }
-            drive.followTrajectory(origin);
+            i++;
         }
     }
 
     private void grabBlock(double speed){
-        drive.setMotorPowers(speed,speed,speed,speed);
-        while(colorsensor.red() < 200){
-            intake.setPower(1);
-        }
-        intake.setPower(0);
-        drive.setMotorPowers(0,0,0,0);
+
     }
 
     private void dropBlock(){
@@ -293,8 +334,8 @@ public class RedWarehouseSideAuto extends LinearOpMode {
                 arm_left.setTargetPosition(745);
                 arm_right.setTargetPosition(745);
             } else {
-                arm_left.setTargetPosition(1150);
-                arm_right.setTargetPosition(1150);
+                arm_left.setTargetPosition(1050);
+                arm_right.setTargetPosition(1050);
             }
 
             arm_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
