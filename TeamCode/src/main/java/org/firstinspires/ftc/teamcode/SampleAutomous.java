@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -52,7 +54,12 @@ public class SampleAutomous extends LinearOpMode
 
         while(opModeIsActive())
         {
-
+            Trajectory lineUp = drive.trajectoryBuilder(currentPose)
+                    .splineToConstantHeading(new Vector2d(35, -35), Math.toRadians(90))
+                    .splineToLinearHeading(new Pose2d(10, -35, Math.toRadians(104)), Math.toRadians(180))
+                    .lineToLinearHeading(new Pose2d(10, -55, Math.toRadians(104)))
+                    .build();
+            drive.followTrajectory(lineUp);
         }
     }
 

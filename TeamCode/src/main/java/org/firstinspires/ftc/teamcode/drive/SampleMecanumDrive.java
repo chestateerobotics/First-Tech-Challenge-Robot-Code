@@ -69,6 +69,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     private TrajectoryFollower follower;
 
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
+    private DcMotor leftLift, rightLift;
     private List<DcMotorEx> motors;
 
     private BNO055IMU imu;
@@ -120,6 +121,9 @@ public class SampleMecanumDrive extends MecanumDrive {
         leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
         rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+
+        rightLift = hardwareMap.get(DcMotor.class, "rightLeft");
+        leftLift = hardwareMap.get(DcMotor.class, "leftRight");
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
@@ -310,5 +314,10 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
         return new ProfileAccelerationConstraint(maxAccel);
+    }
+
+    public void moveLift()
+    {
+
     }
 }
