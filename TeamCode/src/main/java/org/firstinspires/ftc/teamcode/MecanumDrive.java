@@ -13,10 +13,10 @@ class MecanumDrive {
     public DcMotor frontRight;
     public DcMotor backRight;
     public DcMotor backLeft;
-    public DcMotor rightLift;
-    public DcMotor leftLift;
-    public Servo leftServo;
-    public Servo rightServo;
+    //public static DcMotor rightLift;
+    //public static DcMotor leftLift;
+    //public Servo leftServo;
+    //public Servo rightServo;
     private boolean switcher = true;
     public static double GEAR_RATIO = 1.0; // for simulator - ours should be 0.5f;
     public static double WHEEL_RADIUS = 5.0;  // 5 cm
@@ -52,7 +52,7 @@ class MecanumDrive {
         //backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight = hwMap.get(DcMotor.class, "backRight");
         //backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        
+        /*
         rightLift = hwMap.get(DcMotor.class, "rightLift");
         //rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftLift = hwMap.get(DcMotor.class, "leftLift");
@@ -62,7 +62,7 @@ class MecanumDrive {
         rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
+*/
         //rightServo = hwMap.get(Servo.class, "rightServo");
         //leftServo = hwMap.get(Servo.class, "leftServo");
 

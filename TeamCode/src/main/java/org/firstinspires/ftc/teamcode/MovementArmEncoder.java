@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 
-public class Movement extends LinearOpMode {
+public class MovementArmEncoder extends LinearOpMode {
     private MecanumDrive mecanumDrive = new MecanumDrive();
     private double maxSpeed = 1;
     public DcMotor rightLift;
@@ -19,17 +19,22 @@ public class Movement extends LinearOpMode {
     public void runOpMode() {
         mecanumDrive.init(hardwareMap);
         rightLift = hardwareMap.get(DcMotor.class, "rightLift");
-        //rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftLift = hardwareMap.get(DcMotor.class, "leftLift");
-        //leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftServo = hardwareMap.get(Servo.class, "leftServo");
         rightServo = hardwareMap.get(Servo.class, "rightServo");
+
+        rightLift.setTargetPosition(0);
+        leftLift.setTargetPosition(0);
+        leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -85,38 +90,35 @@ public class Movement extends LinearOpMode {
 */
             if(gamepad2.dpad_up)
             {
-                rightLift.setPower(1);
+                rightLift.setTargetPosition(2150);
+                leftLift.setTargetPosition(2150);
                 leftLift.setPower(1);
+                rightLift.setPower(1);
+
             }
             else if(gamepad2.dpad_down)
             {
-                rightLift.setPower(-0.5);
-                leftLift.setPower(-0.5);
+                rightLift.setTargetPosition(0);
+                leftLift.setTargetPosition(0);
+                leftLift.setPower(0.8);
+                rightLift.setPower(0.8);
             }
-            else if(gamepad2.right_stick_y > 0){
-                rightLift.setPower(-gamepad2.right_stick_y*0.3);
-            }
-            else if(gamepad2.left_stick_y > 0){
-                leftLift.setPower(-gamepad2.left_stick_y*0.3);
-            }
-            else
-            {
-                rightLift.setPower(0);
-                leftLift.setPower(0);
+            else{
+                int num = (rightLift.getCurrentPosition() + leftLift.getCurrentPosition())/2;
+                rightLift.setTargetPosition(num);
+                leftLift.setTargetPosition(num);
             }
 
-            if(gamepad2.a || gamepad2.right_bumper)
+            if(gamepad2.a)
             {
-                leftServo.setPosition(-0.7);
-                rightServo.setPosition(0.5);
+                leftServo.setPosition(-1);
+                rightServo.setPosition(1);
             }
             else
             {
                 leftServo.setPosition(1);
-                rightServo.setPosition(0);
+                rightServo.setPosition(-1);
             }
-
-
 
             mecanumDrive.driveMecanum(forward, strafe, rotate);
             telemetry.addData("Encoder Right Lift-*", rightLift.getCurrentPosition());
