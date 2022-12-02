@@ -33,7 +33,10 @@ public class MecanumDrive {
     private int frontRightOffset;
     private int backRightOffset;
     private int backLeftOffset;
-
+    public DcMotor rightLift;
+    public DcMotor leftLift;
+    public Servo leftServo;
+    public Servo rightServo;
 
     public MecanumDrive() {
         float[] data = {1.0f, 1.0f, 1.0f,
@@ -52,9 +55,9 @@ public class MecanumDrive {
         //backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight = hwMap.get(DcMotor.class, "backRight");
         //backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        /*
+
         rightLift = hwMap.get(DcMotor.class, "rightLift");
-        //rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftLift = hwMap.get(DcMotor.class, "leftLift");
         leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -62,9 +65,15 @@ public class MecanumDrive {
         rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-*/
-        //rightServo = hwMap.get(Servo.class, "rightServo");
-        //leftServo = hwMap.get(Servo.class, "leftServo");
+
+        leftServo = hwMap.get(Servo.class, "leftServo");
+        rightServo = hwMap.get(Servo.class, "rightServo");
+
+        rightLift.setTargetPosition(0);
+        leftLift.setTargetPosition(0);
+        leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
 
 
         backLeft.setDirection(DcMotor.Direction.REVERSE);

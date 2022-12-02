@@ -16,13 +16,14 @@ import java.util.Objects;
 
 @Config
 @Autonomous
-public class SampleAuto extends LinearOpMode
+public class SlideAuto extends LinearOpMode
 {
     String objDetect = "";
     public static double MOVE_FORWARD = 50.0;
     public static double TURN_ALIGN = 90;
     public static double BACK_ALIGN = 13;
     public static double FINAL_ANGLE = -15;
+    public static double TUNE_LEFT = 0;
     @Override
     public void runOpMode()
     {
@@ -35,9 +36,6 @@ public class SampleAuto extends LinearOpMode
                 .build();
         Trajectory lineUpBack = drive.trajectoryBuilder(startMove.end().plus(new Pose2d(0,0, Math.toRadians(TURN_ALIGN))))
                 .strafeTo(new Vector2d(BACK_ALIGN, MOVE_FORWARD))
-                .build();
-        Trajectory moveLeft = drive.trajectoryBuilder(lineUpBack.end().plus(new Pose2d(0, 0, Math.toRadians(FINAL_ANGLE))))
-                .strafeTo(new Vector2d(BACK_ALIGN, MOVE_FORWARD+4))
                 .build();
 
 
@@ -66,7 +64,6 @@ public class SampleAuto extends LinearOpMode
             drive.turn(Math.toRadians(TURN_ALIGN));
             drive.followTrajectory(lineUpBack);
             drive.turn(Math.toRadians(FINAL_ANGLE));
-            drive.followTrajectory(moveLeft);
             telemetry.addData("Current Pose", startMove.end());
             telemetry.addData("obj detected", objDetect);
             telemetry.update();
