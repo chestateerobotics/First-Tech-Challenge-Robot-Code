@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleOp;
 
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,14 +10,15 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.classes.MecanumDrive;
 
 @TeleOp
-
+@Config
 public class MovementArmEncoder extends LinearOpMode {
     private MecanumDrive mecanumDrive = new MecanumDrive();
     private double maxSpeed = 1;
     public DcMotor rightLift;
     public DcMotor leftLift;
     public Servo leftServo;
-    public Servo rightServo;
+    public static double ARM_POWER= 0.5;
+    //public Servo rightServo;
 
     public void runOpMode() {
         mecanumDrive.init(hardwareMap);
@@ -31,7 +33,7 @@ public class MovementArmEncoder extends LinearOpMode {
         leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftServo = hardwareMap.get(Servo.class, "leftServo");
-        rightServo = hardwareMap.get(Servo.class, "rightServo");
+        //rightServo = hardwareMap.get(Servo.class, "rightServo");
 
         rightLift.setTargetPosition(0);
         leftLift.setTargetPosition(0);
@@ -50,13 +52,13 @@ public class MovementArmEncoder extends LinearOpMode {
             double rotate = gamepad1.right_stick_x;
 
             //Gamepad 1 Code
-            if(gamepad1.right_trigger >= 0.5){
-                maxSpeed = 0.1;
-                mecanumDrive.setMaxSpeed(0.1);
+            if(gamepad1.right_bumper){
+                maxSpeed = 0.2;
+                mecanumDrive.setMaxSpeed(maxSpeed);
             }
             else{
-                maxSpeed = 0.5;
-                mecanumDrive.setMaxSpeed(0.5);
+                maxSpeed = 0.7;
+                mecanumDrive.setMaxSpeed(maxSpeed);
             }
 /*
             if(gamepad1.dpad_right){
@@ -94,16 +96,16 @@ public class MovementArmEncoder extends LinearOpMode {
             {
                 rightLift.setTargetPosition(2150);
                 leftLift.setTargetPosition(2150);
-                leftLift.setPower(1);
-                rightLift.setPower(1);
+                leftLift.setPower(ARM_POWER);
+                rightLift.setPower(ARM_POWER);
 
             }
             else if(gamepad2.dpad_down)
             {
-                rightLift.setTargetPosition(0);
-                leftLift.setTargetPosition(0);
-                leftLift.setPower(0.8);
-                rightLift.setPower(0.8);
+                rightLift.setTargetPosition(-2150);
+                leftLift.setTargetPosition(-2150);
+                leftLift.setPower(ARM_POWER);
+                rightLift.setPower(ARM_POWER);
             }
             else{
                 int num = (rightLift.getCurrentPosition() + leftLift.getCurrentPosition())/2;
@@ -114,12 +116,10 @@ public class MovementArmEncoder extends LinearOpMode {
             if(gamepad2.a)
             {
                 leftServo.setPosition(-1);
-                rightServo.setPosition(1);
             }
             else
             {
                 leftServo.setPosition(1);
-                rightServo.setPosition(-1);
             }
 
             mecanumDrive.driveMecanum(forward, strafe, rotate);

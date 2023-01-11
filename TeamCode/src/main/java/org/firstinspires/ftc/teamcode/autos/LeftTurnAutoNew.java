@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.autos;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -20,7 +19,7 @@ import java.util.Objects;
 
 @Config
 @Autonomous
-public class LeftTurnAuto extends LinearOpMode
+public class LeftTurnAutoNew extends LinearOpMode
 {
     String objDetect = "";
     public static double MOVE_FORWARD = 52;
@@ -72,48 +71,8 @@ public class LeftTurnAuto extends LinearOpMode
                     encoderArm(0, 0);
                 })
                 .turn(Math.toRadians(TURN_ALIGN), 1.5, Math.toRadians(184.02607784577722))
-                .forward(0.01)
+                .forward(-10)
                 .build();
-        TrajectorySequence backLower = drive.trajectorySequenceBuilder(startMove.end())
-                .waitSeconds(2)
-                .lineToLinearHeading(new Pose2d(0, 50, Math.toRadians(0)), SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-
-                .addTemporalMarker(0, () -> {
-                    // Turn on motor
-                    leftServo.setPosition(-1);
-                })
-                .addTemporalMarker(1.0, () -> {
-                    // Turn on motor
-                    encoderArm(4, 0.5);
-                })
-                .addTemporalMarker(2.5, () -> {
-                    // Turn on motor
-                    encoderArm(0, 0);
-                })
-                .forward(19, SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .build();
-        TrajectorySequence back1 = drive.trajectorySequenceBuilder(backLower.end())
-                .addTemporalMarker(0, () -> {
-                    leftServo.setPosition(1);
-                })
-                .waitSeconds(1)
-                .addTemporalMarker(0.5, () -> {
-                    encoderArm(3, 0.8);
-                })
-                .addTemporalMarker(2.5, () -> {
-                    // Turn off motor
-                    encoderArm(0, 0);
-                })
-                .forward(-25, SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .lineToLinearHeading(new Pose2d(0,MOVE_FORWARD, Math.toRadians(0)), SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .turn(Math.toRadians(135), 1.5, Math.toRadians(184.02607784577722))
-                .forward(-1)
-                .build();
-
         TrajectorySequence parkMiddle = drive.trajectorySequenceBuilder(new Pose2d(0, 0, Math.toRadians(90)))
                 .addTemporalMarker(0.0, () -> {
                     // Turn on motor
@@ -157,9 +116,8 @@ public class LeftTurnAuto extends LinearOpMode
         waitForStart();
         while (opModeIsActive()) {
             drive.followTrajectorySequence(startMove);
-            drive.followTrajectorySequence(backLower);
-            drive.followTrajectorySequence(back1);
-            leftServo.setPosition(-1);
+
+            /*
             if(objDetect.equals("cargill1"))
             {
                 drive.followTrajectorySequence(parkMiddle);
@@ -177,7 +135,7 @@ public class LeftTurnAuto extends LinearOpMode
                 leftServo.setPosition(-1);
             }
             leftServo.setPosition(-1);
-
+            */
             telemetry.addData("Current Pose", startMove.end());
             telemetry.addData("obj detected", objDetect);
             telemetry.update();

@@ -36,7 +36,7 @@ public class MecanumDrive {
     public DcMotor rightLift;
     public DcMotor leftLift;
     public Servo leftServo;
-    public Servo rightServo;
+    //public Servo rightServo;
 
     public MecanumDrive() {
         float[] data = {1.0f, 1.0f, 1.0f,
@@ -67,7 +67,7 @@ public class MecanumDrive {
         leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftServo = hwMap.get(Servo.class, "leftServo");
-        rightServo = hwMap.get(Servo.class, "rightServo");
+        // = hwMap.get(Servo.class, "rightServo");
 
         rightLift.setTargetPosition(0);
         leftLift.setTargetPosition(0);
