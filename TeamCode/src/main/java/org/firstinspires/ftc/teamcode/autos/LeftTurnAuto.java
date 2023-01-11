@@ -132,11 +132,24 @@ public class LeftTurnAuto extends LinearOpMode
                 .lineToLinearHeading(new Pose2d(24.5, 26, Math.toRadians(90)), SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
+<<<<<<< HEAD
         TrajectorySequence parkRight = drive.trajectorySequenceBuilder(parkMiddle.end())
                 .lineToLinearHeading(new Pose2d(-24.5, 26, Math.toRadians(90)), SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
+=======
+
+        TrajectorySequence parkMiddle = drive.trajectorySequenceBuilder(back1.end())
+                .lineToConstantHeading(new Vector2d(0, 25))
+                .build();
+        TrajectorySequence parkLeft = drive.trajectorySequenceBuilder(parkMiddle.end())
+                .lineToConstantHeading(new Vector2d(14, 25))
+                .build();
+        TrajectorySequence parkRight = drive.trajectorySequenceBuilder(parkMiddle.end())
+                .lineToConstantHeading(new Vector2d(-14, 25))
+                .build();
+>>>>>>> 3c47f267c35dcfdd80fa480908616fa2542cf038
         while (!opModeIsActive() && camera.getTfod() != null) {
             List<Recognition> updatedRecognitions = camera.getTfod().getUpdatedRecognitions();
             if (updatedRecognitions != null) {
@@ -163,6 +176,7 @@ public class LeftTurnAuto extends LinearOpMode
             if(objDetect.equals("cargill1"))
             {
                 drive.followTrajectorySequence(parkMiddle);
+<<<<<<< HEAD
                 drive.followTrajectorySequence(parkRight);
                 leftServo.setPosition(-1);
             }else if(objDetect.equals("eagle3"))
@@ -170,18 +184,28 @@ public class LeftTurnAuto extends LinearOpMode
                 drive.followTrajectorySequence(parkMiddle);
                 drive.followTrajectorySequence(parkLeft);
                 leftServo.setPosition(-1);
+=======
+                drive.followTrajectorySequence(parkLeft);
+            }else if(objDetect.equals("eagle3"))
+            {
+                drive.followTrajectorySequence(parkMiddle);
+                drive.followTrajectorySequence(parkRight);
+>>>>>>> 3c47f267c35dcfdd80fa480908616fa2542cf038
             }
             else
             {
                 drive.followTrajectorySequence(parkMiddle);
+<<<<<<< HEAD
                 leftServo.setPosition(-1);
             }
             leftServo.setPosition(-1);
 
+=======
+            }
+>>>>>>> 3c47f267c35dcfdd80fa480908616fa2542cf038
             telemetry.addData("Current Pose", startMove.end());
             telemetry.addData("obj detected", objDetect);
             telemetry.update();
-
             break;
         }
 
