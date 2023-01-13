@@ -139,6 +139,7 @@ public class LeftTurnAutoNew extends LinearOpMode
             telemetry.addData("Current Pose", startMove.end());
             telemetry.addData("obj detected", objDetect);
             telemetry.update();
+            PoseStorage.currentPose = drive.getPoseEstimate();
 
             break;
         }
