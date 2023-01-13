@@ -60,38 +60,7 @@ public class MovementArmEncoder extends LinearOpMode {
                 maxSpeed = 0.7;
                 mecanumDrive.setMaxSpeed(maxSpeed);
             }
-/*
-            if(gamepad1.dpad_right){
-                desiredValue = calc(20);
-                mecanumDrive.leftLift.setTargetPosition(calc(20));
-                mecanumDrive.rightLift.setTargetPosition(calc(20));
-                mecanumDrive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                mecanumDrive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                mecanumDrive.leftLift.setPower(0.5);
-                mecanumDrive.rightLift.setPower(0.5);
-                telemetry.addData("Desired Encoder Value", calc(20));
-            }
-            else if(gamepad1.dpad_down){
-                desiredValue = calc(10);
-                mecanumDrive.leftLift.setTargetPosition(calc(10));
-                mecanumDrive.rightLift.setTargetPosition(calc(10));
-                mecanumDrive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                mecanumDrive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                mecanumDrive.leftLift.setPower(0.5);
-                mecanumDrive.rightLift.setPower(0.5);
-                telemetry.addData("Desired Encoder Value", calc(10));
-            }
-            else if(gamepad1.dpad_up){
-                desiredValue = calc(30);
-                mecanumDrive.leftLift.setTargetPosition(calc(30));
-                mecanumDrive.rightLift.setTargetPosition(calc(30));
-                mecanumDrive.leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                mecanumDrive.rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                mecanumDrive.rightLift.setPower(0.5);
-                mecanumDrive.leftLift.setPower(0.5);
-                telemetry.addData("Desired Encoder Value", calc(30));
-            }
-*/
+            
             if(gamepad2.dpad_up)
             {
                 rightLift.setTargetPosition(2150);
