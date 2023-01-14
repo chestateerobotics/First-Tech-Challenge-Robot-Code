@@ -18,8 +18,10 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 @Config
 public class RR_Drive extends LinearOpMode {
     private double maxSpeed = 1;
+    private int slideValue =0;
     public DcMotorEx rightLift;
     public DcMotorEx leftLift;
+    public DcMotorEx slideLift;
     public Servo leftServo;
 
     public void runOpMode() {
@@ -29,15 +31,23 @@ public class RR_Drive extends LinearOpMode {
         drive.setPoseEstimate(PoseStorage.currentPose);
 
         rightLift = hardwareMap.get(DcMotorEx.class, "rightLift");
-        rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //rightLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         leftLift = hardwareMap.get(DcMotorEx.class, "leftLift");
+        //leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        slideLift = hardwareMap.get(DcMotorEx.class, "slideLift");
+        slideLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slideLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftServo = hardwareMap.get(Servo.class, "leftServo");
 
@@ -56,39 +66,51 @@ public class RR_Drive extends LinearOpMode {
             Pose2d poseEstimate = drive.getPoseEstimate();
 
             if(gamepad1.right_bumper){
-                drive.OMEGA_WEIGHT = 0.2;
-                drive.VX_WEIGHT = 0.2;
-                drive.VY_WEIGHT= 0.2;
+                SampleMecanumDrive.OMEGA_WEIGHT = 0.2;
+                SampleMecanumDrive.VX_WEIGHT = 0.2;
+                SampleMecanumDrive.VY_WEIGHT= 0.2;
             }
             else{
-                drive.OMEGA_WEIGHT = 0.7;
-                drive.VX_WEIGHT = 0.7;
-                drive.VY_WEIGHT= 0.7;
+                SampleMecanumDrive.OMEGA_WEIGHT = 0.7;
+                SampleMecanumDrive.VX_WEIGHT = 0.7;
+                SampleMecanumDrive.VY_WEIGHT= 0.7;
             }
 
             if(gamepad2.dpad_up)
             {
                 targetPosition = 2150;
-                powerLeft = leftPID.output(targetPosition, leftLift.getCurrentPosition());
-                powerRight = rightPID.output(targetPosition, leftLift.getCurrentPosition());
-                leftLift.setPower(powerLeft);
-                rightLift.setPower(powerRight);
+                //powerLeft = leftPID.output(targetPosition, leftLift.getCurrentPosition());
+                //powerRight = rightPID.output(targetPosition, leftLift.getCurrentPosition());
+                //leftLift.setPower(powerLeft);
+               //rightLift.setPower(powerRight);
+                rightLift.setTargetPosition(2150);
+                leftLift.setTargetPosition(2150);
+                leftLift.setPower(0.7);
+                rightLift.setPower(0.7);
 
             }
             else if(gamepad2.dpad_down)
             {
                 targetPosition = -2150;
-                powerLeft = leftPID.output(targetPosition, leftLift.getCurrentPosition());
-                powerRight = rightPID.output(targetPosition, leftLift.getCurrentPosition());
-                leftLift.setPower(powerLeft);
-                rightLift.setPower(powerRight);
+                //powerLeft = leftPID.output(targetPosition, leftLift.getCurrentPosition());
+                //powerRight = rightPID.output(targetPosition, leftLift.getCurrentPosition());
+                //leftLift.setPower(powerLeft);
+                //rightLift.setPower(powerRight);
+                rightLift.setTargetPosition(-2150);
+                leftLift.setTargetPosition(-2150);
+                leftLift.setPower(0.7);
+                rightLift.setPower(0.7);
             }
             else{
-                targetPosition = (rightLift.getCurrentPosition() + leftLift.getCurrentPosition())/2;
-                powerLeft = leftPID.output(targetPosition, leftLift.getCurrentPosition());
-                powerRight = rightPID.output(targetPosition, leftLift.getCurrentPosition());
-                leftLift.setPower(powerLeft);
-                rightLift.setPower(powerRight);
+                //targetPosition = (rightLift.getCurrentPosition() + leftLift.getCurrentPosition())/2;
+                //powerLeft = leftPID.output(targetPosition, leftLift.getCurrentPosition());
+                //powerRight = rightPID.output(targetPosition, leftLift.getCurrentPosition());
+                //leftLift.setPower(powerLeft);
+                //rightLift.setPower(powerRight);
+
+                int num = (rightLift.getCurrentPosition() + leftLift.getCurrentPosition())/2;
+                rightLift.setTargetPosition(num);
+                leftLift.setTargetPosition(num);
             }
 
             if(gamepad2.a)
@@ -100,12 +122,20 @@ public class RR_Drive extends LinearOpMode {
                 leftServo.setPosition(1);
             }
 
+            if(gamepad1.right_bumper && slideValue < 500)
+            {
+                slideLift.setTargetPosition(slideValue+500);
+            }else if(gamepad1.left_bumper && slideValue > -500)
+            {
+                slideLift.setTargetPosition(slideValue-500);
+            }
+
             // Create a vector from the gamepad x/y inputs
             // Then, rotate that vector by the inverse of that heading
             Vector2d input = new Vector2d(
                     -gamepad1.left_stick_y,
-                    -gamepad1.left_stick_x
-            ).rotated(-poseEstimate.getHeading());
+                    gamepad1.left_stick_x
+            ).rotated(poseEstimate.getHeading());
 
             // Pass in the rotated input + right stick value for rotation
             // Rotation is not part of the rotated input thus must be passed in separately

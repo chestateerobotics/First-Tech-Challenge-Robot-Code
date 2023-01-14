@@ -67,14 +67,13 @@ public class MovementArmEncoder extends LinearOpMode {
                 leftLift.setTargetPosition(2150);
                 leftLift.setPower(ARM_POWER);
                 rightLift.setPower(ARM_POWER);
-
             }
             else if(gamepad2.dpad_down)
             {
                 rightLift.setTargetPosition(-2150);
                 leftLift.setTargetPosition(-2150);
-                leftLift.setPower(ARM_POWER);
-                rightLift.setPower(ARM_POWER);
+                leftLift.setPower(1);
+                rightLift.setPower(1);
             }
             else{
                 int num = (rightLift.getCurrentPosition() + leftLift.getCurrentPosition())/2;

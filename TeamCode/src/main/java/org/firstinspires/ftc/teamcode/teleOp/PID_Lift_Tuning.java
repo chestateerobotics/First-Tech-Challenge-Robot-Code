@@ -19,7 +19,8 @@ public class PID_Lift_Tuning extends LinearOpMode {
 
     DcMotorEx rightLift, leftLift;
 
-    ElapsedTime timer = new ElapsedTime();
+    ElapsedTime leftTime = new ElapsedTime();
+    ElapsedTime rightTime = new ElapsedTime();
 
     private double leftLastError = 0;
     private double rightLastError = 0;
@@ -63,6 +64,22 @@ public class PID_Lift_Tuning extends LinearOpMode {
             packet.put("Right Error", rightLastError);
             packet.put("Left Error", leftLastError);
 
+
+            rightLift.setPower(powerRight);
+            leftLift.setPower(powerLeft);
+
+            dashboard.sendTelemetryPacket(packet);
+
+            sleep(500);
+            powerRight = returnRightPower(-targetPosition, rightLift.getCurrentPosition());
+            powerLeft = returnLeftPower(-targetPosition, leftLift.getCurrentPosition());
+            packet.put("Right Power", powerRight);
+            packet.put("Left Power", powerLeft);
+            packet.put("Right Position", rightLift.getCurrentPosition());
+            packet.put("Left Position", leftLift.getCurrentPosition());
+            packet.put("Right Error", rightLastError);
+            packet.put("Left Error", leftLastError);
+
             rightLift.setPower(powerRight);
             leftLift.setPower(powerLeft);
 
@@ -75,12 +92,12 @@ public class PID_Lift_Tuning extends LinearOpMode {
         double error = reference - state;
 
         // forward euler integration
-        integralSumRight += error * timer.seconds();
-        double derivative = (error - rightLastError) / timer.seconds();
+        integralSumRight += error * rightTime.seconds();
+        double derivative = (error - rightLastError) / rightTime.seconds();
 
         double output = (error * Kp) + (integralSumRight * Ki) + (derivative * Kd);
 
-        timer.reset();
+        rightTime.reset();
         rightLastError = error;
 
         return output;
@@ -91,12 +108,12 @@ public class PID_Lift_Tuning extends LinearOpMode {
         double error = reference - state;
 
         // forward euler integration
-        integralSumLeft += error * timer.seconds();
-        double derivative = (error - leftLastError) / timer.seconds();
+        integralSumLeft += error * leftTime.seconds();
+        double derivative = (error - leftLastError) / leftTime.seconds();
 
         double output = (error * Kp) + (integralSumLeft * Ki) + (derivative * Kd);
 
-        timer.reset();
+        leftTime.reset();
         leftLastError = error;
 
         return output;
