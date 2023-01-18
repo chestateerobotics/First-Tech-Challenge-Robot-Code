@@ -23,7 +23,7 @@ import java.util.Objects;
 public class LeftTurnAuto extends LinearOpMode
 {
     String objDetect = "";
-    public static double MOVE_FORWARD = 52;
+    public static double MOVE_FORWARD = 52.5;
     public static double TURN_ALIGN = 45;
     public static int HIGH_VALUE = 1900;
     public static int MIDDLE_VALUE = 1200;
@@ -35,6 +35,7 @@ public class LeftTurnAuto extends LinearOpMode
     public DcMotor leftLift;
     public Servo leftServo;
     //public Servo rightServo;
+    public int encoderSubtracter = 0;
     @Override
     public void runOpMode() {
         rightLift = hardwareMap.get(DcMotor.class, "rightLift");
@@ -57,29 +58,42 @@ public class LeftTurnAuto extends LinearOpMode
 
         WebcamClass camera = new WebcamClass(hardwareMap);
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        leftServo.setPosition(1);
         drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(90)));
 
         TrajectorySequence startMove = drive.trajectorySequenceBuilder(new Pose2d(0, 0, Math.toRadians(90)))
+                .waitSeconds(1)
                 .forward(MOVE_FORWARD, SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED+10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .addTemporalMarker(0, () -> {
+                .addTemporalMarker(1, () -> {
                     // Turn on motor
-                    encoderArm(3, 0.7);
+                    encoderArm(3, 0.8);
                 })
-                .addTemporalMarker(2.5, () -> {
+                .addTemporalMarker(1.5, () -> {
+                    // Slowdown
+                    encoderArm(3, 0.4);
+                })
+                .addTemporalMarker(3, () -> {
                     // Turn on motor
                     encoderArm(0, 0);
                 })
                 .turn(Math.toRadians(TURN_ALIGN), 1.5, Math.toRadians(184.02607784577722))
-                .forward(0.01)
+                .forward(7)
                 .build();
         TrajectorySequence backLower = drive.trajectorySequenceBuilder(startMove.end())
-                .waitSeconds(2)
+                .waitSeconds(0.5)
+                .back(5)
+                .addTemporalMarker(0, () -> {
+                    // Turn on motor
+                    encoderArm(5, 0.6);
+                })
+                .addTemporalMarker(0.5, () -> {
+                    // Turn on motor
+                    encoderArm(0, 0);
+                })
                 .lineToLinearHeading(new Pose2d(0, 50, Math.toRadians(0)), SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
 
-                .addTemporalMarker(0, () -> {
+                .addTemporalMarker(0.5, () -> {
                     // Turn on motor
                     leftServo.setPosition(-1);
                 })
@@ -87,7 +101,7 @@ public class LeftTurnAuto extends LinearOpMode
                     // Turn on motor
                     encoderArm(4, 0.5);
                 })
-                .addTemporalMarker(2.5, () -> {
+                .addTemporalMarker(3, () -> {
                     // Turn on motor
                     encoderArm(0, 0);
                 })
@@ -99,11 +113,16 @@ public class LeftTurnAuto extends LinearOpMode
                     leftServo.setPosition(1);
                 })
                 .waitSeconds(1)
-                .addTemporalMarker(0.5, () -> {
-                    encoderArm(3, 0.8);
+                .addTemporalMarker(0, () -> {
+                    // Turn on motor
+                    encoderArm(3, 0.7);
                 })
-                .addTemporalMarker(2.5, () -> {
-                    // Turn off motor
+                .addTemporalMarker(1, () -> {
+                    // Slowdown
+                    encoderArm(3, 0.3);
+                })
+                .addTemporalMarker(3, () -> {
+                    // Turn on motor
                     encoderArm(0, 0);
                 })
                 .forward(-25, SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
@@ -111,10 +130,11 @@ public class LeftTurnAuto extends LinearOpMode
                 .lineToLinearHeading(new Pose2d(0,MOVE_FORWARD, Math.toRadians(0)), SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .turn(Math.toRadians(135), 1.5, Math.toRadians(184.02607784577722))
-                .forward(-1)
+                .forward(6)
                 .build();
 
-        TrajectorySequence parkMiddle = drive.trajectorySequenceBuilder(new Pose2d(0, 0, Math.toRadians(90)))
+        TrajectorySequence parkMiddle = drive.trajectorySequenceBuilder(back1.end())
+                .back(6)
                 .addTemporalMarker(0.0, () -> {
                     // Turn on motor
                     encoderArm(0, 0.7);
@@ -124,17 +144,14 @@ public class LeftTurnAuto extends LinearOpMode
                     encoderArm(0, 0);
                 })
                 .waitSeconds(1)
-                .turn(Math.toRadians(-130), 1.5, Math.toRadians(184.02607784577722))
-                .lineToConstantHeading(new Vector2d(0, 26), SampleMecanumDrive.getVelocityConstraint(10, 10, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(1))
+                .turn(Math.toRadians(-40), 1.5, Math.toRadians(184.02607784577722))
+                .lineToConstantHeading(new Vector2d(-1, 46))
                 .build();
         TrajectorySequence parkLeft = drive.trajectorySequenceBuilder(parkMiddle.end())
-                .lineToLinearHeading(new Pose2d(24.5, 26, Math.toRadians(90)), SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .strafeLeft(20)
                 .build();
         TrajectorySequence parkRight = drive.trajectorySequenceBuilder(parkMiddle.end())
-                .lineToLinearHeading(new Pose2d(-24.5, 26, Math.toRadians(90)), SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .strafeRight(-20)
                 .build();
 
         while (!opModeIsActive() && camera.getTfod() != null) {
@@ -156,8 +173,13 @@ public class LeftTurnAuto extends LinearOpMode
 
         waitForStart();
         while (opModeIsActive()) {
+            leftServo.setPosition(1);
             drive.followTrajectorySequence(startMove);
             drive.followTrajectorySequence(backLower);
+            encoderSubtracter+=25;
+            drive.followTrajectorySequence(back1);
+            drive.followTrajectorySequence(backLower);
+            encoderSubtracter+=25;
             drive.followTrajectorySequence(back1);
             leftServo.setPosition(-1);
             if(objDetect.equals("cargill1"))
@@ -208,9 +230,16 @@ public class LeftTurnAuto extends LinearOpMode
                 leftLift.setTargetPosition(HIGH_VALUE);
                 rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            } else {
-                rightLift.setTargetPosition(350);
-                leftLift.setTargetPosition(350);
+            }
+            else if(level == 5){
+                rightLift.setTargetPosition(rightLift.getCurrentPosition()-300);
+                leftLift.setTargetPosition(rightLift.getCurrentPosition()-300);
+                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+            else {
+                rightLift.setTargetPosition(275-encoderSubtracter);
+                leftLift.setTargetPosition(275-encoderSubtracter);
                 rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
@@ -219,5 +248,22 @@ public class LeftTurnAuto extends LinearOpMode
         rightLift.setPower(power);
         leftLift.setPower(power);
 
+    }
+    public double powerFunction(int encoderTick)
+    {
+        double power = 0;
+        if(encoderTick < 800)
+        {
+            power = 1;
+        }
+        else if(encoderTick < 1200)
+        {
+            power = 0.2;
+        }
+        else
+        {
+            power = 0.2;
+        }
+        return power;
     }
 }

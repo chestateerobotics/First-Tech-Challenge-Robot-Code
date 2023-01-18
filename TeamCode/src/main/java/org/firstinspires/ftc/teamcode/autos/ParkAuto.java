@@ -30,10 +30,10 @@ public class ParkAuto extends LinearOpMode
                 .lineToConstantHeading(new Vector2d(0, 26))
                 .build();
         TrajectorySequence parkLeft = drive.trajectorySequenceBuilder(parkMiddle.end())
-                .lineToConstantHeading(new Vector2d(24, 26))
+                .strafeLeft(20)
                 .build();
         TrajectorySequence parkRight = drive.trajectorySequenceBuilder(parkMiddle.end())
-                .lineToConstantHeading(new Vector2d(-24, 26))
+                .strafeLeft(-20)
                 .build();
 
         while (!opModeIsActive() && camera.getTfod() != null) {
