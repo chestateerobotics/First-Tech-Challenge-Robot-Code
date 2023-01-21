@@ -110,17 +110,17 @@ public class MovementArmEncoder extends LinearOpMode {
     public double powerFunction(int encoderTick)
     {
         double power = 0;
-        if(encoderTick < 800)
+        if(encoderTick < 400)
         {
             power = 1;
         }
         else if(encoderTick < 1200)
         {
-            power = 0.4;
+            power = 0.5;
         }
         else
         {
-            power = 0.6;
+            power = 0.3;
         }
         return power;
     }
