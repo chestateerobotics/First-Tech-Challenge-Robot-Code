@@ -17,8 +17,6 @@ public class MovementArmEncoder extends LinearOpMode {
     public DcMotor rightLift;
     public DcMotor leftLift;
     public Servo leftServo;
-    public static double ARM_POWER= 0.7;
-    //public Servo rightServo;
 
     public void runOpMode() {
         mecanumDrive.init(hardwareMap);
@@ -55,10 +53,11 @@ public class MovementArmEncoder extends LinearOpMode {
             if(gamepad1.right_bumper){
                 maxSpeed = 0.2;
                 mecanumDrive.setMaxSpeed(maxSpeed);
+                rotate = gamepad1.right_stick_x*0.4;
             }
             else{
                 maxSpeed = 0.7;
-                rotate = gamepad1.right_stick_x*0.5;
+                rotate = gamepad1.right_stick_x*0.8;
                 mecanumDrive.setMaxSpeed(maxSpeed);
             }
             
@@ -100,6 +99,7 @@ public class MovementArmEncoder extends LinearOpMode {
             }
 
             mecanumDrive.driveMecanum(forward, strafe, rotate);
+
             telemetry.addData("Encoder Right Lift-*", rightLift.getCurrentPosition());
             telemetry.addData("Encoder Left Lift", leftLift.getCurrentPosition());
             telemetry.addData("Max Speed = ", maxSpeed);

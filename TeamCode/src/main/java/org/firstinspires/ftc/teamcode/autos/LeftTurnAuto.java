@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.autos;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -8,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.classes.WebcamClass;
@@ -34,10 +37,16 @@ public class LeftTurnAuto extends LinearOpMode
     public DcMotor rightLift;
     public DcMotor leftLift;
     public Servo leftServo;
+    private final FtcDashboard dashboard = FtcDashboard.getInstance();
+    private VoltageSensor ControlHub_VoltageSensor;
     //public Servo rightServo;
     public int encoderSubtracter = 0;
     @Override
     public void runOpMode() {
+        TelemetryPacket packet = new TelemetryPacket();
+
+        dashboard.setTelemetryTransmissionInterval(25);
+        ControlHub_VoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
         rightLift = hardwareMap.get(DcMotor.class, "rightLift");
         rightLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftLift = hardwareMap.get(DcMotor.class, "leftLift");
@@ -61,10 +70,10 @@ public class LeftTurnAuto extends LinearOpMode
         drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(90)));
 
         TrajectorySequence startMove = drive.trajectorySequenceBuilder(new Pose2d(0, 0, Math.toRadians(90)))
-                .waitSeconds(1)
+                .waitSeconds(0.25)
                 .forward(MOVE_FORWARD, SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .addTemporalMarker(1, () -> {
+                .addTemporalMarker(0.25, () -> {
                     // Turn on motor
                     encoderArm(3, 0.6);
                 })
@@ -73,7 +82,7 @@ public class LeftTurnAuto extends LinearOpMode
                     encoderArm(3, 0.2);
                 })
                 .turn(Math.toRadians(TURN_ALIGN), 2, Math.toRadians(184.02607784577722))
-                .forward(7, SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED-10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(6, SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED-10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         TrajectorySequence backLower = drive.trajectorySequenceBuilder(startMove.end())
@@ -81,7 +90,7 @@ public class LeftTurnAuto extends LinearOpMode
                 .back(5)
                 .addTemporalMarker(0, () -> {
                     // Turn on motor
-                    encoderArm(5, 0.6);
+                    encoderArm(5, 0.8);
                 })
                 .addTemporalMarker(0.5, () -> {
                     // Turn on motor
@@ -123,7 +132,7 @@ public class LeftTurnAuto extends LinearOpMode
                     // Turn on motor
                     encoderArm(4, 0.5);
                 })
-                .forward(18.5, SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .forward(19, SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         TrajectorySequence back1 = drive.trajectorySequenceBuilder(backLower.end())
@@ -142,38 +151,41 @@ public class LeftTurnAuto extends LinearOpMode
                 .lineToLinearHeading(new Pose2d(0,MOVE_FORWARD, Math.toRadians(0)), SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .turn(Math.toRadians(135), 2, Math.toRadians(184.02607784577722))
-                .forward(6)
+                .forward(4)
                 .build();
         TrajectorySequence back2 = drive.trajectorySequenceBuilder(backLower.end())
                 .addTemporalMarker(0, () -> {
                     leftServo.setPosition(1);
                 })
-                .waitSeconds(1)
-                .addTemporalMarker(0.5, () -> {
-                    // Turn on motor
-                    encoderArm(3, 0.6);
-                })
-                .addTemporalMarker(1.5, () -> {
-                    // Slowdown
-                    encoderArm(3, 0.2);
-                })
-                .lineToLinearHeading(new Pose2d(0,MOVE_FORWARD, Math.toRadians(0)), SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
-                .turn(Math.toRadians(135), 2, Math.toRadians(184.02607784577722))
-                .forward(6, SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                                .waitSeconds(1)
+                                .addTemporalMarker(0.5, () -> {
+                                    // Turn on motor
+                                    encoderArm(3, 0.6);
+                                })
+                                .addTemporalMarker(1.5, () -> {
+                                    // Slowdown
+                                    encoderArm(3, 0.2);
+                                })
+                                .lineToLinearHeading(new Pose2d(0,MOVE_FORWARD, Math.toRadians(0)), SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                                .turn(Math.toRadians(135), 2, Math.toRadians(184.02607784577722))
+                                .forward(4.5, SampleMecanumDrive.getVelocityConstraint(CYCLE_SPEED, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
         TrajectorySequence parkMiddle = drive.trajectorySequenceBuilder(back1.end())
-                .waitSeconds(1.5)
+                .waitSeconds(0.5)
                 .addTemporalMarker(0, () -> {
                     // Turn on motor
-                    encoderArm(5, 0.6);
+                    encoderArm(5, 0.9);
                 })
-                .addTemporalMarker(1.5, () -> {
+                .addTemporalMarker(0.5, () -> {
+                    // Turn on motor
+                    encoderArm(0, 0.7);
+                })
+                .addTemporalMarker(0.5, () -> {
                     // Turn on motor
                     leftServo.setPosition(-1);
-                    encoderArm(0, 0.7);
                 })
                 .addTemporalMarker(4.5, () -> {
                     // Turn on motor
@@ -186,7 +198,7 @@ public class LeftTurnAuto extends LinearOpMode
                 .lineToConstantHeading(new Vector2d(-25, 48))
                 .build();
         TrajectorySequence parkRight = drive.trajectorySequenceBuilder(parkMiddle.end())
-                .strafeRight(25)
+                .lineToConstantHeading(new Vector2d(23, 47))
                 .build();
 
         while (!opModeIsActive() && camera.getTfod() != null) {
@@ -200,8 +212,11 @@ public class LeftTurnAuto extends LinearOpMode
                         objDetect = "number2";
                     else
                         objDetect = "eagle3";
+                    packet.put("Detected Image:",  recognition.getLabel() + "Confidence Level: " + recognition.getConfidence() * 100);
+                    packet.put("Voltage:", ControlHub_VoltageSensor.getVoltage());
                     telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
                 }
+                dashboard.sendTelemetryPacket(packet);
                 telemetry.update();
             }
         }
@@ -216,7 +231,6 @@ public class LeftTurnAuto extends LinearOpMode
             drive.followTrajectorySequence(backLower);
             encoderSubtracter+=25;
             drive.followTrajectorySequence(back2);
-            leftServo.setPosition(-1);
             if(objDetect.equals("eagle3"))
             {
                 drive.followTrajectorySequence(parkMiddle);
@@ -234,9 +248,15 @@ public class LeftTurnAuto extends LinearOpMode
                 leftServo.setPosition(-1);
             }
             leftServo.setPosition(-1);
-
+            packet.put("Right Power", rightLift.getPower());
+            packet.put("Left Power", leftLift.getPower());
+            packet.put("Right Position", rightLift.getCurrentPosition());
+            packet.put("Left Position", leftLift.getCurrentPosition());
+            packet.put("Voltage", ControlHub_VoltageSensor.getVoltage());
             telemetry.addData("Current Pose", startMove.end());
             telemetry.addData("obj detected", objDetect);
+            packet.put("Object detected", objDetect);
+            dashboard.sendTelemetryPacket(packet);
             telemetry.update();
 
             break;
@@ -267,8 +287,8 @@ public class LeftTurnAuto extends LinearOpMode
                 leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
             else if(level == 5){
-                rightLift.setTargetPosition(rightLift.getCurrentPosition()-300);
-                leftLift.setTargetPosition(rightLift.getCurrentPosition()-300);
+                rightLift.setTargetPosition(rightLift.getCurrentPosition()-500);
+                leftLift.setTargetPosition(rightLift.getCurrentPosition()-500);
                 rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
