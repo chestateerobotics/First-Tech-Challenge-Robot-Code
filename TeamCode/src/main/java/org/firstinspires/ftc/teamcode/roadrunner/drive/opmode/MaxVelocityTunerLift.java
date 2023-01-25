@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleLift;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 
 import java.util.Objects;
@@ -25,7 +26,7 @@ import java.util.Objects;
  */
 @Config
 @Autonomous(group = "drive")
-public class MaxVelocityTuner extends LinearOpMode {
+public class MaxVelocityTunerLift extends LinearOpMode {
     public static double RUNTIME = 2.0;
 
     private ElapsedTime timer;
@@ -35,7 +36,7 @@ public class MaxVelocityTuner extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        SampleLift drive = new SampleLift(hardwareMap);
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -77,6 +78,6 @@ public class MaxVelocityTuner extends LinearOpMode {
     }
 
     private double veloInchesToTicks(double inchesPerSec) {
-        return inchesPerSec / (4* DriveConstants.LEAD_OF_SCREW) / DriveConstants.GEAR_RATIO * DriveConstants.TICKS_PER_REV_LIFT;
+        return inchesPerSec / (2 * Math.PI * DriveConstants.WHEEL_RADIUS) / DriveConstants.GEAR_RATIO * DriveConstants.TICKS_PER_REV;
     }
 }
