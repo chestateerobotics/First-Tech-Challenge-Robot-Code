@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.roadrunner.drive;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 /*
@@ -43,8 +44,8 @@ public class DriveConstants {
 
     public static final boolean RUN_USING_ENCODER_LIFT = true;
     public static PIDFCoefficients MOTOR_VELO_PID_LIFT = new PIDFCoefficients(0, 0, 0,
-            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
-
+            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV_LIFT));
+    public static PIDCoefficients MOTOR_VELO_PIDS_LIFT = new PIDCoefficients(0, 0, 0);
     /*
      * These are physical constants that can be determined from your robot (including the track
      * width; it will be tune empirically later although a rough estimate is important). Users are
@@ -67,7 +68,7 @@ public class DriveConstants {
     public static double kA = 0.0035;
     public static double kStatic = 0.0022;
 
-    public static double kV_LIFT = 1.0 / rpmToVelocity(MAX_RPM_LIFT);
+    public static double kV_LIFT = 1.0 / rpmToVelocityLift(MAX_RPM_LIFT);
     public static double kA_LIFT = 0;
     public static double kStatic_LIFT = 0;
 

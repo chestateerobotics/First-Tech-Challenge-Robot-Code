@@ -3,9 +3,16 @@ package org.firstinspires.ftc.teamcode.roadrunner.drive.opmode;
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.MAX_ACCEL;
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.MAX_VEL;
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.MOTOR_VELO_PID;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.MOTOR_VELO_PIDS_LIFT;
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.MOTOR_VELO_PID_LIFT;
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.RUN_USING_ENCODER;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.RUN_USING_ENCODER_LIFT;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kA_LIFT;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kStatic_LIFT;
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kV;
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kV_LIFT;
+import com.acmerobotics.roadrunner.control.PIDFController;
+
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -56,18 +63,17 @@ public class LiftVelocityPIDTuner extends LinearOpMode {
 
     enum Mode {
         DRIVER_MODE,
-        TUNING_MODE
-    }
+        TUNING_MODE}
 
     private static MotionProfile generateProfile(boolean movingForward) {
         MotionState start = new MotionState(movingForward ? 0 : DISTANCE, 0, 0, 0);
         MotionState goal = new MotionState(movingForward ? DISTANCE : 0, 0, 0, 0);
-        return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, MAX_VEL, MAX_ACCEL);
+        return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, 10, 10);
     }
 
     @Override
     public void runOpMode() {
-        if (!RUN_USING_ENCODER) {
+        if (!RUN_USING_ENCODER_LIFT) {
             RobotLog.setGlobalErrorMsg("%s does not need to be run if the built-in motor velocity" +
                     "PID is not in use", getClass().getSimpleName());
         }
@@ -84,7 +90,7 @@ public class LiftVelocityPIDTuner extends LinearOpMode {
         double lastKf = MOTOR_VELO_PID_LIFT.f;
 
         lift.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID_LIFT);
-
+        PIDFController controller = new PIDFController(MOTOR_VELO_PIDS_LIFT, kV_LIFT, kA_LIFT, kStatic_LIFT);
         NanoClock clock = NanoClock.system();
 
         telemetry.addLine("Ready!");
@@ -121,9 +127,9 @@ public class LiftVelocityPIDTuner extends LinearOpMode {
                     }
 
                     MotionState motionState = activeProfile.get(profileTime);
-                    double targetPower = kV * motionState.getV();
-                    lift.setMotorPowers(targetPower, targetPower);
-
+                    double targetPower = kV_LIFT * motionState.getV();
+                    double power = controller.update(motionState.getX(), targetPower);
+                    lift.setMotorPowers(power, power);
                     List<Double> velocities = lift.getWheelVelocities();
 
                     // update telemetry
