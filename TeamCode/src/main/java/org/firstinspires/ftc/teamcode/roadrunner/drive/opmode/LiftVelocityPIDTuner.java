@@ -84,10 +84,12 @@ public class LiftVelocityPIDTuner extends LinearOpMode {
 
         Mode mode = Mode.TUNING_MODE;
 
-        double lastKp = MOTOR_VELO_PID_LIFT.p;
-        double lastKi = MOTOR_VELO_PID_LIFT.i;
-        double lastKd = MOTOR_VELO_PID_LIFT.d;
-        double lastKf = MOTOR_VELO_PID_LIFT.f;
+        double lastKp = MOTOR_VELO_PIDS_LIFT.kP;
+        double lastKi = MOTOR_VELO_PIDS_LIFT.kI;
+        double lastKd = MOTOR_VELO_PIDS_LIFT.kD;
+        double lastKv = kV_LIFT;
+        double lastKa = kA_LIFT;
+        double lastKs = kStatic_LIFT;
 
         lift.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID_LIFT);
         PIDFController controller = new PIDFController(MOTOR_VELO_PIDS_LIFT, kV_LIFT, kA_LIFT, kStatic_LIFT);
@@ -127,8 +129,14 @@ public class LiftVelocityPIDTuner extends LinearOpMode {
                     }
 
                     MotionState motionState = activeProfile.get(profileTime);
-                    double targetPower = kV_LIFT * motionState.getV();
-                    double power = controller.update(motionState.getX(), targetPower);
+                    //double targetPower = kV_LIFT * motionState.getV();
+                    //double targetAccel = kA_LIFT * motionState.getA();
+                    controller.setTargetPosition(motionState.getX());
+                    controller.setTargetVelocity(motionState.getV());
+                    controller.setTargetAcceleration(motionState.getA());
+                    double vel = lift.getWheelVelocities().indexOf(0);
+                    double pos = lift.getWheelPositions().indexOf(0);
+                    double power = controller.update(pos, vel);
                     lift.setMotorPowers(power, power);
                     List<Double> velocities = lift.getWheelVelocities();
 
@@ -161,14 +169,17 @@ public class LiftVelocityPIDTuner extends LinearOpMode {
                     break;
             }
 
-            if (lastKp != MOTOR_VELO_PID_LIFT.p || lastKd != MOTOR_VELO_PID_LIFT.d
-                    || lastKi != MOTOR_VELO_PID_LIFT.i || lastKf != MOTOR_VELO_PID_LIFT.f) {
-                lift.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID_LIFT);
-
-                lastKp = MOTOR_VELO_PID_LIFT.p;
-                lastKi = MOTOR_VELO_PID_LIFT.i;
-                lastKd = MOTOR_VELO_PID_LIFT.d;
-                lastKf = MOTOR_VELO_PID_LIFT.f;
+            if (lastKp != MOTOR_VELO_PIDS_LIFT.kP || lastKd != MOTOR_VELO_PIDS_LIFT.kD
+                    || lastKi != MOTOR_VELO_PIDS_LIFT.kI || lastKv != kV_LIFT
+                    || lastKa != kA_LIFT || lastKs != kStatic_LIFT) {
+                //lift.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID_LIFT);
+                controller = new PIDFController(MOTOR_VELO_PIDS_LIFT, kV_LIFT, kA_LIFT, kStatic_LIFT);
+                lastKp = MOTOR_VELO_PIDS_LIFT.kP;
+                lastKi = MOTOR_VELO_PIDS_LIFT.kI;
+                lastKd = MOTOR_VELO_PIDS_LIFT.kD;
+                lastKv = kV_LIFT;
+                lastKa = kA_LIFT;
+                lastKs = kStatic_LIFT;
             }
 
             telemetry.update();
