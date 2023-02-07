@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.classes.WebcamClass;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleLift;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 
@@ -28,7 +29,7 @@ public class LeftTurnAutoNew extends LinearOpMode
 
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
     private VoltageSensor ControlHub_VoltageSensor;
-    //public Servo rightServo;
+    private SampleLift lift = new SampleLift(hardwareMap);
     public int encoderSubtracter = 0;
     @Override
     public void runOpMode() {
@@ -42,7 +43,7 @@ public class LeftTurnAutoNew extends LinearOpMode
         waitForStart();
         while (opModeIsActive()) {
 
-            packet.put("Right Power", rightLift.getPower());
+            packet.put("Right Power", lift.rightLift.getPower());
             packet.put("Left Power", leftLift.getPower());
             packet.put("Right Position", rightLift.getCurrentPosition());
             packet.put("Left Position", leftLift.getCurrentPosition());

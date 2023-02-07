@@ -10,7 +10,6 @@ import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.acmerobotics.roadrunner.util.NanoClock;
-import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleLift;
@@ -52,6 +51,7 @@ public class LiftMovement {
         this.targetAccel = targetAccel;
         activeProfile = profileGenerate();
         profileStart = clock.seconds();
+        controller.reset();
     }
 
     public double powerLift()

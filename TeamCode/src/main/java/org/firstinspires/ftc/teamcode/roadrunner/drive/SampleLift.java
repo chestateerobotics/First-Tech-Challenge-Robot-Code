@@ -36,7 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /*
- * Simple mecanum drive hardware implementation for REV hardware.
+ * Simple lift motor hardware implementation for REV hardware.
  */
 @Config
 public class SampleLift extends MecanumDrive {
@@ -57,11 +57,6 @@ public class SampleLift extends MecanumDrive {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        // TODO: adjust the names of the following hardware devices to match your configuration
-        //imu = hardwareMap.get(BNO055IMU.class, "imu");
-        //BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        //parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-        //imu.initialize(parameters);
 
         rightLift = hardwareMap.get(DcMotorEx.class, "rightLift");
         leftLift = hardwareMap.get(DcMotorEx.class, "leftLift");
