@@ -115,7 +115,7 @@ public class DriveConstants {
     }
 
     public static double encoderTicksToInchesLift(double ticks) {
-        return LEAD_OF_SCREW * 4 * ticks / TICKS_PER_REV_LIFT;
+        return LEAD_OF_SCREW * 8 * ticks / TICKS_PER_REV_LIFT;
     }
 
     public static double rpmToVelocityLift(double rpm) {

@@ -134,8 +134,8 @@ public class LiftVelocityPIDTuner extends LinearOpMode {
                     controller.setTargetPosition(motionState.getX());
                     controller.setTargetVelocity(motionState.getV());
                     controller.setTargetAcceleration(motionState.getA());
-                    double vel = lift.getWheelVelocities().indexOf(0);
-                    double pos = lift.getWheelPositions().indexOf(0);
+                    double vel = lift.getWheelVelocities().get(0);
+                    double pos = lift.getWheelPositions().get(0);
                     double power = controller.update(pos, vel);
                     lift.setMotorPowers(power, power);
                     List<Double> velocities = lift.getWheelVelocities();

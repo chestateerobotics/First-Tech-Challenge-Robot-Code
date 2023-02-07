@@ -21,7 +21,6 @@ public class LiftMovement {
     private double targetAccel = 0;
     private double lastPos = 0;
 
-    private HardwareMap hardwareMap = null;
     MotionProfile activeProfile = null;
     private PIDFController controller = null;
     SampleLift lift = null;
@@ -32,7 +31,8 @@ public class LiftMovement {
 
     public LiftMovement(HardwareMap hardwareMap)
     {
-        this.hardwareMap = hardwareMap;
+        controller = new PIDFController(MOTOR_VELO_PIDS_LIFT, kV_LIFT, kA_LIFT, kStatic_LIFT);
+        lift = new SampleLift(hardwareMap);
     }
 
 
@@ -50,10 +50,8 @@ public class LiftMovement {
         this.targetPos = targetPos;
         this.targetVel = targetVel;
         this.targetAccel = targetAccel;
-        controller = new PIDFController(MOTOR_VELO_PIDS_LIFT, kV_LIFT, kA_LIFT, kStatic_LIFT);
-        lift = new SampleLift(hardwareMap);
-        profileStart = clock.seconds();
         activeProfile = profileGenerate();
+        profileStart = clock.seconds();
     }
 
     public double powerLift()
@@ -67,10 +65,9 @@ public class LiftMovement {
         controller.setTargetPosition(motionState.getX());
         controller.setTargetVelocity(motionState.getV());
         controller.setTargetAcceleration(motionState.getA());
-        double vel = lift.getWheelVelocities().indexOf(0);
-        double pos = lift.getWheelPositions().indexOf(0);
-        double power = controller.update(pos, vel);
-        return power;
+        double vel = lift.getWheelVelocities().get(0);
+        double pos = lift.getWheelPositions().get(0);
+        return controller.update(pos, vel);
     }
 
 }
