@@ -19,6 +19,7 @@ public class LiftMovement {
     private double targetVel = 0;
     private double targetAccel = 0;
     private double lastPos = 0;
+    private double power = 0;
 
     MotionProfile activeProfile = null;
     private PIDFController controller = null;
@@ -54,6 +55,11 @@ public class LiftMovement {
         controller.reset();
     }
 
+    public double getPower()
+    {
+        return power;
+    }
+
     public double powerLift()
     {
         double profileTime = clock.seconds() - profileStart;
@@ -67,7 +73,8 @@ public class LiftMovement {
         controller.setTargetAcceleration(motionState.getA());
         double vel = lift.getWheelVelocities().get(0);
         double pos = lift.getWheelPositions().get(0);
-        return controller.update(pos, vel);
+        power = controller.update(pos, vel);
+        return power;
     }
 
 }

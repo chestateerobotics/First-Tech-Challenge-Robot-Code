@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.teamcode.classes.LiftMovement;
 import org.firstinspires.ftc.teamcode.classes.WebcamClass;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleLift;
@@ -30,6 +31,7 @@ public class LeftTurnAutoNew extends LinearOpMode
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
     private VoltageSensor ControlHub_VoltageSensor;
     private SampleLift lift = new SampleLift(hardwareMap);
+    private LiftMovement power = new LiftMovement(hardwareMap);
     public int encoderSubtracter = 0;
     @Override
     public void runOpMode() {
@@ -43,10 +45,16 @@ public class LeftTurnAutoNew extends LinearOpMode
         waitForStart();
         while (opModeIsActive()) {
 
-            packet.put("Right Power", lift.rightLift.getPower());
-            packet.put("Left Power", leftLift.getPower());
-            packet.put("Right Position", rightLift.getCurrentPosition());
-            packet.put("Left Position", leftLift.getCurrentPosition());
+
+
+
+
+            packet.put("Right Power", power.getPower());
+            packet.put("Left Power", power.getPower());
+            packet.put("Right Velocity", lift.getWheelVelocities().get(0));
+            packet.put("Left Velocity", lift.getWheelVelocities().get(1));
+            packet.put("Right Position", lift.getWheelPositions().get(0));
+            packet.put("Left Position", lift.getWheelPositions().get(1));
             packet.put("Voltage", ControlHub_VoltageSensor.getVoltage());
             dashboard.sendTelemetryPacket(packet);
             telemetry.update();
@@ -55,45 +63,41 @@ public class LeftTurnAutoNew extends LinearOpMode
         }
 
     }
-    private void encoderArm(int level, double power){
-        if(power != 0.0) {
+    private void encoderArm(int level, boolean toggle){
+        if(toggle) {
             if (level == 0) {
-                leftLift.setTargetPosition(0);
-                rightLift.setTargetPosition(0);
-                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                power.startMovement(0, 20, 20);
+                lift.setMotorPowers(power.powerLift(), power.powerLift());
             } else if (level == 1) {
-                rightLift.setTargetPosition(LOW_VALUE);
-                leftLift.setTargetPosition(LOW_VALUE);
-                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                power.startMovement(17.36, 20, 20);
+                lift.setMotorPowers(power.powerLift(), power.powerLift());
             } else if (level == 2) {
-                rightLift.setTargetPosition(MIDDLE_VALUE);
-                leftLift.setTargetPosition(MIDDLE_VALUE);
-                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                power.startMovement(27.36, 20, 20);
+                lift.setMotorPowers(power.powerLift(), power.powerLift());
             } else if (level == 3) {
-                rightLift.setTargetPosition(HIGH_VALUE);
-                leftLift.setTargetPosition(HIGH_VALUE);
-                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                power.startMovement(37.36, 20, 20);
+                lift.setMotorPowers(power.powerLift(), power.powerLift());
             }
             else if(level == 5){
-                rightLift.setTargetPosition(rightLift.getCurrentPosition()-500);
-                leftLift.setTargetPosition(rightLift.getCurrentPosition()-500);
-                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                //rightLift.setTargetPosition(rightLift.getCurrentPosition()-500);
+                //leftLift.setTargetPosition(rightLift.getCurrentPosition()-500);
+                //rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                //leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                power.startMovement(0, 20, 20);
+                lift.setMotorPowers(power.powerLift(), power.powerLift());
             }
             else {
-                rightLift.setTargetPosition(300-encoderSubtracter);
-                leftLift.setTargetPosition(300-encoderSubtracter);
-                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                //rightLift.setTargetPosition(300-encoderSubtracter);
+                //leftLift.setTargetPosition(300-encoderSubtracter);
+                //rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                //leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                power.startMovement(0, 20, 20);
+                lift.setMotorPowers(power.powerLift(), power.powerLift());
             }
 
         }
-        rightLift.setPower(power);
-        leftLift.setPower(power);
-
+        lift.setMotorPowers(0, 0);
     }
 }
