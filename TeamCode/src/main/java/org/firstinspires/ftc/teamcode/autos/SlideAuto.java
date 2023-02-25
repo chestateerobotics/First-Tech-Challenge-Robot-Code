@@ -33,17 +33,53 @@ public class SlideAuto extends LinearOpMode
     public static double BACK_ALIGN = 9;
     public static double FINAL_ANGLE = -15;
     public static double TUNE_LEFT = 7.5;
+
+    public static int HIGH_VALUE = 1900;
+    public static int MIDDLE_VALUE = 1200;
+    public static int LOW_VALUE = 1000;
+
+    public static int SLIDE_HIGH = -1500;
+    public static int SLIDE_GRAB = 1000;
+    public static int SLIDE_NEUTRAL = 0;
+
+    public int encoderSubtracter = 0;
+
     NanoClock clock = NanoClock.system();
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
     private VoltageSensor ControlHub_VoltageSensor;
     public DcMotorEx rightLift;
     public DcMotorEx leftLift;
+    public DcMotorEx slideLift;
     public Servo leftServo;
 
     @Override
     public void runOpMode()
     {
         TelemetryPacket packet = new TelemetryPacket();
+
+        rightLift = hardwareMap.get(DcMotorEx.class, "rightLift");
+        rightLift.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        leftLift = hardwareMap.get(DcMotorEx.class, "leftLift");
+        leftLift.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        slideLift = hardwareMap.get(DcMotorEx.class, "slideLift");
+        slideLift.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
+        rightLift.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        rightLift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        leftLift.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        leftLift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slideLift.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        slideLift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+
+        leftServo = hardwareMap.get(Servo.class, "leftServo");
+        //rightServo = hardwareMap.get(Servo.class, "rightServo");
+
+        rightLift.setTargetPosition(0);
+        leftLift.setTargetPosition(0);
+        leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slideLift.setTargetPosition(0);
+        slideLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         dashboard.setTelemetryTransmissionInterval(25);
         ControlHub_VoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
@@ -60,31 +96,41 @@ public class SlideAuto extends LinearOpMode
                 .build();
         TrajectorySequence CYCLE_1 = drive.trajectorySequenceBuilder(startMove.end())
                 .addTemporalMarker(0, () -> {
-                    //lift up;
+                    //slide and arm to high junction
+                    encoderArm(3, 0.8);
+                    encoderSlide(1, 0.5);
                 })
-                .addTemporalMarker(0.2, () -> {
-                    //slide back;
+                .addTemporalMarker(0.5, () -> {
+                    //lower lift;
+                    encoderArm(5, 0.3);
+                })
+                .addTemporalMarker(0.6, () -> {
+                    //claw drop;
+                    leftServo.setPosition(-1);
+                })
+                .addTemporalMarker(0.7, () -> {
+                    //lift up
+                    encoderArm(3, 0.3);
                 })
                 .addTemporalMarker(0.8, () -> {
-                    //lower lift;
-                })
-                .addTemporalMarker(1, () -> {
-                    //claw drop;
-                    //lift up
-                })
-                .addTemporalMarker(1.2, () -> {
-                    //lift down to stack minus nth time
-                    //open claw
                     //slide forward
+                    encoderSlide(2, 1);
+                })
+                .addTemporalMarker(0.85, () -> {
+                    //raise down
+                    encoderArm(4, 0.7);
+                })
+                .addTemporalMarker(1.3, () -> {
+                    //close claw
+                    leftServo.setPosition(1);
+                })
+                .addTemporalMarker(1.4, () -> {
+                    //raise up to neutral
+                    encoderArm(1, 0.7);
                 })
                 .addTemporalMarker(1.5, () -> {
-                    //close claw
-                })
-                .addTemporalMarker(1.6, () -> {
-                    //raise to neutral
-                })
-                .addTemporalMarker(1.7, () -> {
-                    //slide back to neutral
+                    //raise up to neutral
+                    encoderSlide(1, 0.7);
                 })
                 .build();
         TrajectorySequence parkMiddle = drive.trajectorySequenceBuilder(startMove.end())
@@ -148,4 +194,64 @@ public class SlideAuto extends LinearOpMode
             break;
         }
     }
+
+    private void encoderArm(int level, double power){
+        if(power != 0.0) {
+            if (level == 0) {
+                leftLift.setTargetPosition(0);
+                rightLift.setTargetPosition(0);
+                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            } else if (level == 1) {
+                rightLift.setTargetPosition(LOW_VALUE);
+                leftLift.setTargetPosition(LOW_VALUE);
+                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            } else if (level == 2) {
+                rightLift.setTargetPosition(MIDDLE_VALUE);
+                leftLift.setTargetPosition(MIDDLE_VALUE);
+                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            } else if (level == 3) {
+                rightLift.setTargetPosition(HIGH_VALUE);
+                leftLift.setTargetPosition(HIGH_VALUE);
+                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+            else if(level == 5){
+                rightLift.setTargetPosition(rightLift.getCurrentPosition()-500);
+                leftLift.setTargetPosition(rightLift.getCurrentPosition()-500);
+                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+            else {
+                rightLift.setTargetPosition(300-encoderSubtracter);
+                leftLift.setTargetPosition(300-encoderSubtracter);
+                rightLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+
+        }
+        rightLift.setPower(power);
+        leftLift.setPower(power);
+
+    }
+
+    private void encoderSlide(int level, double power){
+        if(power != 0.0) {
+            if (level == 0) {
+                slideLift.setTargetPosition(SLIDE_NEUTRAL);
+                slideLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            } else if (level == 1) {
+                slideLift.setTargetPosition(SLIDE_HIGH);
+                slideLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            } else if (level == 2) {
+                slideLift.setTargetPosition(SLIDE_GRAB);
+                slideLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+        }
+        slideLift.setPower(power);
+
+    }
+
 }
