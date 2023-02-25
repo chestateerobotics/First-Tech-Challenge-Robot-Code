@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.autos;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.classes.WebcamClass;
@@ -20,8 +23,14 @@ import java.util.Objects;
 public class ParkAuto extends LinearOpMode
 {
     String objDetect = "";
+    private final FtcDashboard dashboard = FtcDashboard.getInstance();
+    private VoltageSensor ControlHub_VoltageSensor;
     @Override
     public void runOpMode() {
+        TelemetryPacket packet = new TelemetryPacket();
+
+        dashboard.setTelemetryTransmissionInterval(25);
+        ControlHub_VoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
         WebcamClass camera = new WebcamClass(hardwareMap);
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         drive.setPoseEstimate(new Pose2d(0, 0, Math.toRadians(90)));
@@ -47,8 +56,11 @@ public class ParkAuto extends LinearOpMode
                         objDetect = "number2";
                     else
                         objDetect = "eagle3";
-                    telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
+                    packet.put("Detected Image:",  recognition.getLabel() + "Confidence Level: " + recognition.getConfidence() * 100);
+                    packet.put("Voltage:", ControlHub_VoltageSensor.getVoltage());
+                    telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100 );
                 }
+                dashboard.sendTelemetryPacket(packet);
                 telemetry.update();
             }
         }

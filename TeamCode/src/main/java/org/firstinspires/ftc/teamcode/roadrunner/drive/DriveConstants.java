@@ -29,6 +29,9 @@ public class DriveConstants {
     public static final double TICKS_PER_REV_LIFT = 145.1;
     public static final double MAX_RPM_LIFT = 1150;
     public static final double LEAD_OF_SCREW = 0.314961;
+    public static final String FE_NAME = "odomForward";
+    public static final String LE_NAME = "backLeft";
+    public static final String RE_NAME = "backRight";
 
     /*
      * Set RUN_USING_ENCODER to true to enable built-in hub velocity control using drive encoders.
@@ -43,8 +46,6 @@ public class DriveConstants {
       getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
     public static final boolean RUN_USING_ENCODER_LIFT = true;
-    public static PIDFCoefficients MOTOR_VELO_PID_LIFT = new PIDFCoefficients(0, 0, 0,
-            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV_LIFT));
     public static PIDCoefficients MOTOR_VELO_PIDS_LIFT = new PIDCoefficients(0, 0, 0);
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -71,6 +72,7 @@ public class DriveConstants {
     public static double kV_LIFT = 1.0 / rpmToVelocityLift(MAX_RPM_LIFT);
     public static double kA_LIFT = 0;
     public static double kStatic_LIFT = 0;
+    public static double Kf = getMotorVelocityF(MAX_RPM_LIFT / 60 * TICKS_PER_REV_LIFT);
 
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
@@ -115,7 +117,7 @@ public class DriveConstants {
     }
 
     public static double encoderTicksToInchesLift(double ticks) {
-        return LEAD_OF_SCREW * 8 * ticks / TICKS_PER_REV_LIFT;
+        return LEAD_OF_SCREW * 16 * ticks / TICKS_PER_REV_LIFT;
     }
 
     public static double rpmToVelocityLift(double rpm) {

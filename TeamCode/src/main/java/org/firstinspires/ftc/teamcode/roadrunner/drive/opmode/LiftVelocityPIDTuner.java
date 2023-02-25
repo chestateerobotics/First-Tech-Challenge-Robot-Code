@@ -1,15 +1,11 @@
 package org.firstinspires.ftc.teamcode.roadrunner.drive.opmode;
 
-import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.MAX_ACCEL;
-import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.MAX_VEL;
-import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.MOTOR_VELO_PID;
+
+import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.Kf;
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.MOTOR_VELO_PIDS_LIFT;
-import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.MOTOR_VELO_PID_LIFT;
-import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.RUN_USING_ENCODER;
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.RUN_USING_ENCODER_LIFT;
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kA_LIFT;
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kStatic_LIFT;
-import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kV;
 import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kV_LIFT;
 import com.acmerobotics.roadrunner.control.PIDFController;
 
@@ -18,6 +14,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.kinematics.Kinematics;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
@@ -31,6 +28,8 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleLift;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
 
 import java.util.List;
+
+import kotlin.jvm.functions.Function2;
 
 /*
  * This routine is designed to tune the PID coefficients used by the REV Expansion Hubs for closed-
@@ -59,8 +58,9 @@ import java.util.List;
 @Config
 @Autonomous(group = "driveLift")
 public class LiftVelocityPIDTuner extends LinearOpMode {
-    public static double DISTANCE = 72; // in
-
+    public static double DISTANCE = 30; // in
+    public static double MAX_VEL = 20;
+    public static double MAX_ACCEL = 10;
     enum Mode {
         DRIVER_MODE,
         TUNING_MODE}
@@ -68,7 +68,7 @@ public class LiftVelocityPIDTuner extends LinearOpMode {
     private static MotionProfile generateProfile(boolean movingForward) {
         MotionState start = new MotionState(movingForward ? 0 : DISTANCE, 0, 0, 0);
         MotionState goal = new MotionState(movingForward ? DISTANCE : 0, 0, 0, 0);
-        return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, 10, 10);
+        return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, MAX_VEL, MAX_ACCEL);
     }
 
     @Override
@@ -91,8 +91,8 @@ public class LiftVelocityPIDTuner extends LinearOpMode {
         double lastKa = kA_LIFT;
         double lastKs = kStatic_LIFT;
 
-        lift.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID_LIFT);
-        PIDFController controller = new PIDFController(MOTOR_VELO_PIDS_LIFT, kV_LIFT, kA_LIFT, kStatic_LIFT);
+        lift.setPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PIDS_LIFT);
+        PIDFController controller = new PIDFController(MOTOR_VELO_PIDS_LIFT);
         NanoClock clock = NanoClock.system();
 
         telemetry.addLine("Ready!");
@@ -129,27 +129,34 @@ public class LiftVelocityPIDTuner extends LinearOpMode {
                     }
 
                     MotionState motionState = activeProfile.get(profileTime);
-                    //double targetPower = kV_LIFT * motionState.getV();
-                    //double targetAccel = kA_LIFT * motionState.getA();
+                    telemetry.addData("time", profileTime);
+                    double targetPower = kV_LIFT * motionState.getV();
+                    double targetAccel = kA_LIFT * motionState.getA();
                     controller.setTargetPosition(motionState.getX());
                     controller.setTargetVelocity(motionState.getV());
                     controller.setTargetAcceleration(motionState.getA());
                     double vel = lift.getWheelVelocities().get(0);
                     double pos = lift.getWheelPositions().get(0);
-                    double power = controller.update(pos, vel);
-                    lift.setMotorPowers(power, power);
+                    double power = controller.update(pos, vel) +
+                            Kinematics.calculateMotorFeedforward(motionState.getV(), motionState.getA(), kV_LIFT, kA_LIFT, kStatic_LIFT);
+                    telemetry.addData("power from pid", power);
+                    telemetry.addData("feed constants", kV_LIFT + " " + kA_LIFT + " " + kStatic_LIFT);
+                    telemetry.addData("power after feed", power);
+                    lift.rightLift.setPower(power);
+                    lift.leftLift.setPower(power);
                     List<Double> velocities = lift.getWheelVelocities();
 
-                    // update telemetry
-                    telemetry.addData("targetVelocity", motionState.getV());
-                    for (int i = 0; i < velocities.size(); i++) {
-                        telemetry.addData("measuredVelocity" + i, velocities.get(i));
-                        telemetry.addData(
-                                "error" + i,
-                                motionState.getV() - velocities.get(i)
-                        );
-                    }
-                    break;
+                // update telemetry
+                telemetry.addData("targetVelocity", motionState.getV());
+                telemetry.addData("Controller", controller.toString());
+                for (int i = 0; i < velocities.size(); i++) {
+                    telemetry.addData("measuredVelocity" + i, velocities.get(i));
+                    telemetry.addData(
+                            "error" + i,
+                            motionState.getV() - velocities.get(i)
+                    );
+                }
+                break;
                 case DRIVER_MODE:
                     if (gamepad1.b) {
                         lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -161,10 +168,10 @@ public class LiftVelocityPIDTuner extends LinearOpMode {
                     }
 
                     if(gamepad1.dpad_up){
-                        lift.setMotorPowers(0.7, 0.7);
+                        lift.setMotorPowers(0.7, 0.7,0,0);
                     }
                     else if(gamepad1.dpad_down){
-                        lift.setMotorPowers(-0.7, -0.7);
+                        lift.setMotorPowers(-0.7, -0.7,0,0);
                     }
                     break;
             }
@@ -173,7 +180,8 @@ public class LiftVelocityPIDTuner extends LinearOpMode {
                     || lastKi != MOTOR_VELO_PIDS_LIFT.kI || lastKv != kV_LIFT
                     || lastKa != kA_LIFT || lastKs != kStatic_LIFT) {
                 //lift.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID_LIFT);
-                controller = new PIDFController(MOTOR_VELO_PIDS_LIFT, kV_LIFT, kA_LIFT, kStatic_LIFT);
+                lift.setPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PIDS_LIFT);
+                controller = new PIDFController(MOTOR_VELO_PIDS_LIFT);
                 lastKp = MOTOR_VELO_PIDS_LIFT.kP;
                 lastKi = MOTOR_VELO_PIDS_LIFT.kI;
                 lastKd = MOTOR_VELO_PIDS_LIFT.kD;

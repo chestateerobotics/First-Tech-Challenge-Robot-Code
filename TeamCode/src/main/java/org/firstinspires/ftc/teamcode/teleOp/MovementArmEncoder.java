@@ -80,8 +80,8 @@ public class MovementArmEncoder extends LinearOpMode {
             {
                 rightLift.setTargetPosition(-2000);
                 leftLift.setTargetPosition(-2000);
-                leftLift.setPower(0.5);
-                rightLift.setPower(0.5);
+                leftLift.setPower(0.1);
+                rightLift.setPower(0.1);
             }
             else{
                 int num = (rightLift.getCurrentPosition() + leftLift.getCurrentPosition())/2;

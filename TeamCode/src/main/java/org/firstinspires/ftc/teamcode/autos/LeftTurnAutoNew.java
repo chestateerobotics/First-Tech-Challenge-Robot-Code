@@ -67,16 +67,16 @@ public class LeftTurnAutoNew extends LinearOpMode
         if(toggle) {
             if (level == 0) {
                 power.startMovement(0, 20, 20);
-                lift.setMotorPowers(power.powerLift(), power.powerLift());
+                lift.setMotorPowers(power.powerLift(), power.powerLift(), 0, 0);
             } else if (level == 1) {
                 power.startMovement(17.36, 20, 20);
-                lift.setMotorPowers(power.powerLift(), power.powerLift());
+                lift.setMotorPowers(power.powerLift(), power.powerLift(), 0,0);
             } else if (level == 2) {
                 power.startMovement(27.36, 20, 20);
-                lift.setMotorPowers(power.powerLift(), power.powerLift());
+                lift.setMotorPowers(power.powerLift(), power.powerLift(),0,0);
             } else if (level == 3) {
                 power.startMovement(37.36, 20, 20);
-                lift.setMotorPowers(power.powerLift(), power.powerLift());
+                lift.setMotorPowers(power.powerLift(), power.powerLift(),0,0);
             }
             else if(level == 5){
                 //rightLift.setTargetPosition(rightLift.getCurrentPosition()-500);
@@ -85,7 +85,7 @@ public class LeftTurnAutoNew extends LinearOpMode
                 //leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                 power.startMovement(0, 20, 20);
-                lift.setMotorPowers(power.powerLift(), power.powerLift());
+                lift.setMotorPowers(power.powerLift(), power.powerLift(),0,0);
             }
             else {
                 //rightLift.setTargetPosition(300-encoderSubtracter);
@@ -94,10 +94,10 @@ public class LeftTurnAutoNew extends LinearOpMode
                 //leftLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                 power.startMovement(0, 20, 20);
-                lift.setMotorPowers(power.powerLift(), power.powerLift());
+                lift.setMotorPowers(power.powerLift(), power.powerLift(),0,0);
             }
 
         }
-        lift.setMotorPowers(0, 0);
+        lift.setMotorPowers(0, 0,0,0);
     }
 }

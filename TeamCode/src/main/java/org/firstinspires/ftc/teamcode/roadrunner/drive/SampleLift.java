@@ -41,7 +41,7 @@ import java.util.List;
 @Config
 public class SampleLift extends MecanumDrive {
     public static double LATERAL_MULTIPLIER = 1;
-    private DcMotorEx leftLift, rightLift;
+    public DcMotorEx leftLift, rightLift;
     private List<DcMotorEx> liftMotors;
 
     private VoltageSensor batteryVoltageSensor;
@@ -74,8 +74,8 @@ public class SampleLift extends MecanumDrive {
 
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        if (DriveConstants.RUN_USING_ENCODER_LIFT && DriveConstants.MOTOR_VELO_PID_LIFT != null) {
-            setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, DriveConstants.MOTOR_VELO_PID_LIFT);
+        if (DriveConstants.RUN_USING_ENCODER_LIFT && DriveConstants.MOTOR_VELO_PIDS_LIFT != null) {
+            setPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, DriveConstants.MOTOR_VELO_PIDS_LIFT);
         }
 
         // TODO: reverse any motors using DcMotor.setDirection()
@@ -95,14 +95,12 @@ public class SampleLift extends MecanumDrive {
         }
     }
 
-    public void setPIDFCoefficients(DcMotor.RunMode runMode, PIDFCoefficients coefficients) {
+    public void setPIDCoefficients(DcMotor.RunMode runMode, PIDCoefficients coefficients) {
         PIDFCoefficients compensatedCoefficients = new PIDFCoefficients(
-                coefficients.p, coefficients.i, coefficients.d,
-                coefficients.f * 12 / batteryVoltageSensor.getVoltage()
-        );
+                coefficients.kP, coefficients.kI, coefficients.kD, 0);
 
         for (DcMotorEx motor : liftMotors) {
-            motor.setPIDFCoefficients(runMode, compensatedCoefficients);
+            //motor.setPIDFCoefficients(runMode, compensatedCoefficients);
         }
     }
 
@@ -125,10 +123,7 @@ public class SampleLift extends MecanumDrive {
         return wheelVelocities;
     }
 
-    public void setMotorPowers(double v, double v1) {
-        leftLift.setPower(v);
-        rightLift.setPower(v1);
-    }
+
 
 
 
@@ -144,6 +139,7 @@ public class SampleLift extends MecanumDrive {
 
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-
+        leftLift.setPower(v);
+        rightLift.setPower(v1);
     }
 }
