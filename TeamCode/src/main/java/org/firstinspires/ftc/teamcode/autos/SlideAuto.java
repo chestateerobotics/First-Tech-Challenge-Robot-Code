@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -32,6 +33,7 @@ public class SlideAuto extends LinearOpMode
     public static double BACK_ALIGN = 9;
     public static double FINAL_ANGLE = -15;
     public static double TUNE_LEFT = 7.5;
+    NanoClock clock = NanoClock.system();
     private final FtcDashboard dashboard = FtcDashboard.getInstance();
     private VoltageSensor ControlHub_VoltageSensor;
     public DcMotorEx rightLift;
@@ -72,16 +74,17 @@ public class SlideAuto extends LinearOpMode
                 })
                 .addTemporalMarker(1.2, () -> {
                     //lift down to stack minus nth time
+                    //open claw
                     //slide forward
                 })
-                .addTemporalMarker(1, () -> {
-
+                .addTemporalMarker(1.5, () -> {
+                    //close claw
                 })
-                .addTemporalMarker(1, () -> {
-
+                .addTemporalMarker(1.6, () -> {
+                    //raise to neutral
                 })
-                .addTemporalMarker(1, () -> {
-
+                .addTemporalMarker(1.7, () -> {
+                    //slide back to neutral
                 })
                 .build();
         TrajectorySequence parkMiddle = drive.trajectorySequenceBuilder(startMove.end())
@@ -116,10 +119,16 @@ public class SlideAuto extends LinearOpMode
         }
 
         waitForStart();
+        double profileStart = clock.seconds();
         while(opModeIsActive())
         {
+            double profileTime = clock.seconds() - profileStart;
             drive.followTrajectorySequence(startMove);
-            sleep(20000);
+            while (profileTime < 25)
+            {
+                drive.followTrajectorySequence(CYCLE_1);
+                profileTime = clock.seconds() - profileStart;
+            }
             if(objDetect.equals("eagle3"))
             {
                 drive.followTrajectorySequence(parkRight);
